@@ -1,4 +1,10 @@
 #!/bin/bash
 
-python2 ${OPENSHIFT_REPO_DIR}/flaskapp.py > ${OPENSHIFT_LOG_DIR}/update_db.log
+python2 ${OPENSHIFT_REPO_DIR}/flaskapp.py 2>&1 | tee -a ${OPENSHIFT_LOG_DIR}/update_db.log > /tmp/update_db.log
+
+curl -XPOST \
+  https://api.sparkpost.com/api/v1/transmissions \
+  -H "Authorization: adde3a74abf22a06c78b438346e13086d796b86c" \
+  -H "Content-Type: application/json" \
+  -d "{\"content\": {\"from\": \"battledecks@avril4th.com\", \"subject\": \"Oh hey\", \"text\":\"$(cat /tmp/update_db.log)\"}, \"recipients\": [{\"address\": \"gui-gui@netcourrier.com\"}]}"
 
