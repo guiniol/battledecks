@@ -1,0 +1,4 @@
+#!/bin/bash
+
+python2 ${OPENSHIFT_REPO_DIR}/flaskapp.py > ${OPENSHIFT_LOG_DIR}/update_db.log
+
