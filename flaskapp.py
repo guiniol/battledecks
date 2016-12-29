@@ -36,7 +36,7 @@ gatherer_url = ['/Pages/Card/Details.aspx?multiverseid=',
                 'magic/autocard.asp?name=',
                 ]
 
-card_re = re.compile(r'(?P<quantity>\d+) +(?P<name>.+)')
+card_re = re.compile(r'^(?P<quantity>[1-9]\d*) +(?P<name>.+)')
 
 colours_order = ['White', 'Blue', 'Black', 'Red', 'Green', 'Colorless', 'Any']
 colours_abbrv = ['W', 'U', 'B', 'R', 'G', 'C', 'A']
@@ -192,12 +192,12 @@ def update_db():
         for deck in decks:
             a = deck.xpath(cardkingdom_link)[0]
             title = a.xpath('text()')[0].split(':', 1)[1].strip()
-            print "Adding deck %s" % title
             active_decks.append(title)
             res = BattleDecks.query.filter_by(name=title).first()
             if res:
                 continue
 
+            print "Adding deck %s" % title
             thumb = deck.xpath(cardkingdom_thumb)[0].xpath('a/img')[0].get('src')
             thumb = requests.get(thumb)
             thumb = base64.b64encode(thumb.content)
@@ -210,7 +210,7 @@ def update_db():
             db.session.add(dbDeck)
             db.session.commit()
             for d in details:
-                m = re.search(card_re, d)
+                m = re.search(card_re, d.strip())
                 if m:
                     card, uniquecard = make_card(dbDeck.id,
                                                  m.group('name'),
@@ -227,7 +227,7 @@ def update_db():
             break
         page_url = next_li.xpath('a')[0].get('href')
     for deck in BattleDecks.query.all():
-        if deck.title in active_decks:
+        if deck.name in active_decks:
             deck.active = True
         else:
             deck.active = False
