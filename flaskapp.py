@@ -30,8 +30,11 @@ db = SQLAlchemy(app)
 base_url = 'http://www.cardkingdom.com/catalog/shop/battle-decks'
 google_search = 'https://www.google.fr/search?q=gatherer+'
 gatherer_base = 'http://gatherer.wizards.com'
-gatherer_url = gatherer_base + '/Pages/Card/Details.aspx?multiverseid='
-gatherer_secondary_url = gatherer_base + '/Pages/Card/Details.aspx?name='
+wizards_base = 'http://www.wizards.com/'
+gatherer_url = ['/Pages/Card/Details.aspx?multiverseid=',
+                '/Pages/Card/Details.aspx?name=',
+                'magic/autocard.asp?name=',
+                ]
 
 card_re = re.compile(r'(?P<quantity>\d+) +(?P<name>.+)')
 
@@ -45,7 +48,7 @@ cardkingdom_link = 'span/span[@class="productTitle"]/a'
 cardkingdom_title = 'text()'
 cardkingdom_details = 'span/span[@class="productDescDetails"]/text()'
 google_result = '//h3[@class="r"]/a'
-gatherer_cardname = '//div[contains(@id, "nameRow")]/div[@class="value"]/text()'
+gatherer_cardname = '//span[contains(@id, "subtitleDisplay")]/text()'
 gatherer_cardcolour = '//div[contains(@id, "manaRow")]/div[@class="value"]/img'
 gatherer_cardtype = '//div[contains(@id, "typeRow")]/div[@class="value"]/text()'
 gatherer_cardimg = '//img[contains(@id, "cardImage")]'
@@ -236,20 +239,19 @@ def make_card(deck, name, quantity):
     for res in tree.xpath(google_result):
         href = res.get('href')
         href = unquote(href[7:].split('&')[0])
-        if href.startswith(gatherer_url):
-            break
-        href = ''
-    if href == '':
-        for res in tree.xpath(google_result):
-            href = res.get('href')
-            href = unquote(href[7:].split('&')[0])
-            if href.startswith(gatherer_secondary_url):
+        if href.startswith(gatherer_base) or href.startswith(wizards_base):
+            dobreak = False
+            for url in gatherer_url:
+                if url in href:
+                    dobreak = True
+                    break
+            if dobreak:
                 break
-            href = ''
+        href = ''
 
     info = requests.get(href)
     infotree = html.fromstring(info.content)
-    cardname = ' // '.join([s.strip() for s in infotree.xpath(gatherer_cardname)])
+    cardname = infotree.xpath(gatherer_cardname)[0].strip()
     dbCard = UniqueCards.query.filter_by(name=cardname).first()
     if dbCard is None:
         cardcolour = set()
