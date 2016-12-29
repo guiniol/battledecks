@@ -10,5 +10,7 @@ setup(name='Battle Decks',
           'Flask>=0.11',
           'Flask-SQLAlchemy==2.1',
           'SQLAlchemy==1.1.4',
+          'Requests==2.12.4',
+          'lxml==3.4.4',
           ],
      )
