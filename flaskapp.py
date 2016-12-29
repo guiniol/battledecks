@@ -132,7 +132,7 @@ def redirect_https():
 
 @app.before_request
 def csrf_protect():
-    if request.method == "POST":
+    if request.method == 'POST':
         token = request.cookies.get('_csrf_token')
         if not token or token != request.form.get('_csrf_token'):
             abort(403)
@@ -197,7 +197,7 @@ def update_db():
             if res:
                 continue
 
-            print "Adding deck %s" % title
+            print 'Adding deck %s' % title
             thumb = deck.xpath(cardkingdom_thumb)[0].xpath('a/img')[0].get('src')
             thumb = requests.get(thumb)
             thumb = base64.b64encode(thumb.content)
@@ -265,7 +265,7 @@ def make_card(deck, name, quantity):
         dbCard = UniqueCards(cardname, cardcolour, cardtype, basic, cardimage)
         db.session.add(dbCard)
         db.session.commit()
-        print "  New card: %s" % cardname
+        print '  New card: %s' % cardname
     dbDeckCard = DeckCards(dbCard.id, deck, quantity)
     db.session.add(dbDeckCard)
     return dbDeckCard, dbCard
@@ -320,5 +320,6 @@ def check_decks():
 
 
 if __name__ == '__main__':
+    print 'Checking for new decks'
     update_db()
 
