@@ -31,6 +31,7 @@ base_url = 'http://www.cardkingdom.com/catalog/shop/battle-decks'
 google_search = 'https://www.google.fr/search?q=gatherer+'
 gatherer_base = 'http://gatherer.wizards.com'
 gatherer_url = gatherer_base + '/Pages/Card/Details.aspx?multiverseid='
+gatherer_secondary_url = gatherer_base + '/Pages/Card/Details.aspx?name='
 
 card_re = re.compile(r'(?P<quantity>\d+) +(?P<name>.+)')
 
@@ -114,9 +115,9 @@ class DeckCards(db.Model):
         self.quantity = quantity
 
     def __repr__(self):
-        return '%d card %d in deck %d\n' % (self.quantity,
-                                            self.card,
-                                            self.deck)
+        return '%d cards %d in deck %d\n' % (self.quantity,
+                                             self.card,
+                                             self.deck)
 
 
 @app.before_request
@@ -203,10 +204,11 @@ def update_db():
             cards = []
             uniquecards = []
             dbDeck = BattleDecks(title, url, desc, thumb)
+            db.session.add(dbDeck)
+            db.session.commit()
             for d in details:
                 m = re.search(card_re, d)
                 if m:
-                    print 'cardspec %s' % d
                     card, uniquecard = make_card(dbDeck.id,
                                                  m.group('name'),
                                                  int(m.group('quantity')))
@@ -236,6 +238,15 @@ def make_card(deck, name, quantity):
         href = unquote(href[7:].split('&')[0])
         if href.startswith(gatherer_url):
             break
+        href = ''
+    if href == '':
+        for res in tree.xpath(google_result):
+            href = res.get('href')
+            href = unquote(href[7:].split('&')[0])
+            if href.startswith(gatherer_secondary_url):
+                break
+            href = ''
+
     info = requests.get(href)
     infotree = html.fromstring(info.content)
     cardname = ' // '.join([s.strip() for s in infotree.xpath(gatherer_cardname)])
@@ -250,8 +261,12 @@ def make_card(deck, name, quantity):
         cardimage = infotree.xpath(gatherer_cardimg)[0].get('src')
         cardimage = gatherer_base + cardimage[5:]
         dbCard = UniqueCards(cardname, cardcolour, cardtype, basic, cardimage)
+        db.session.add(dbCard)
+        db.session.commit()
         print "  New card: %s" % cardname
-    dbDeckCards = DeckCards(dbCard.id, deck, quantity)
+    dbDeckCard = DeckCards(dbCard.id, deck, quantity)
+    db.session.add(dbDeckCard)
+    return dbDeckCard, dbCard
 
 def filter_colour(colours):
     to_discard = set()
