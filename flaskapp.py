@@ -186,7 +186,9 @@ def update_db():
         tree = html.fromstring(page.content)
         decks = tree.xpath(cardkingdom_decks)
         for deck in decks:
+            a = deck.xpath(cardkingdom_link)[0]
             title = a.xpath('text()')[0].split(':', 1)[1].strip()
+            print "Adding deck %s" % title
             active_decks.append(title)
             res = BattleDecks.query.filter_by(name=title).first()
             if res:
@@ -195,7 +197,6 @@ def update_db():
             thumb = deck.xpath(cardkingdom_thumb)[0].xpath('a/img')[0].get('src')
             thumb = requests.get(thumb)
             thumb = base64.b64encode(thumb.content)
-            a = deck.xpath(cardkingdom_link)[0]
             url = a.get('href')
             details = deck.xpath(cardkingdom_details)
             desc = ''
@@ -248,7 +249,8 @@ def make_card(deck, name, quantity):
         cardimage = infotree.xpath(gatherer_cardimg)[0].get('src')
         cardimage = gatherer_base + cardimage[5:]
         dbCard = UniqueCards(cardname, cardcolour, cardtype, basic, cardimage)
-        dbDeckCards = DeckCards(dbCard.id, deck, quantity)
+        print "  New card: %s" % cardname
+    dbDeckCards = DeckCards(dbCard.id, deck, quantity)
 
 def filter_colour(colours):
     to_discard = set()
