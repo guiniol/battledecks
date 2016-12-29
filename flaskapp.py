@@ -32,7 +32,7 @@ google_search = 'https://www.google.fr/search?q=gatherer+'
 gatherer_base = 'http://gatherer.wizards.com'
 gatherer_url = gatherer_base + '/Pages/Card/Details.aspx?multiverseid='
 
-card_re = re.compile(r'(?P<quantity>\d+) (?P<name>.*)')
+card_re = re.compile(r'(?P<quantity>\d+) +(?P<name>.+)')
 
 colours_order = ['White', 'Blue', 'Black', 'Red', 'Green', 'Colorless', 'Any']
 colours_abbrv = ['W', 'U', 'B', 'R', 'G', 'C', 'A']
@@ -206,9 +206,10 @@ def update_db():
             for d in details:
                 m = re.search(card_re, d)
                 if m:
+                    print 'cardspec %s' % d
                     card, uniquecard = make_card(dbDeck.id,
                                                  m.group('name'),
-                                                 m.group('quantity'))
+                                                 int(m.group('quantity')))
                     cards.append(card)
                     uniquecards.append(uniquecard)
                 else:
