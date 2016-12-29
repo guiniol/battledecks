@@ -310,6 +310,14 @@ def combine_colours(cards):
             text += c
     return text
 
+def check_decks():
+    for deck in BattleDecks.query.all():
+        n = 0
+        for card in DeckCards.query.filter_by(deck=deck.id):
+            n += card.quantity
+        if not n == 60:
+            print 'problem with deck %s: %d cards' % (deck.name, n)
+
 
 if __name__ == '__main__':
     update_db()
