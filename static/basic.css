@@ -43,3 +43,13 @@ ul {
     margin-right: 2%;
 }
 
+.cardname {
+    position: relative;
+}
+
+.popupimage {
+    position: absolute;
+    margin-left: 10%;
+    z-index: 999;
+}
+

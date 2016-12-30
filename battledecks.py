@@ -164,9 +164,13 @@ def show_decks():
                 cards_txt += '<li class="cardtypelist"><span class="cardtype">' + types + '</span>\n'
                 cards_txt += '<ul class="cardlist">\n'
                 for card in cards[types]:
-                    cards_txt += '<li class="carddesc" oli="' + card['image'] + '">'
+                    cards_txt += '<li class="carddesc">'
                     cards_txt += '<span class="cardquantity">' + card['quantity'] + '</span>'
-                    cards_txt += '<span class="cardname">' + card['name'] + '</span>'
+                    cards_txt += '<span class="cardname"' +\
+                                 'oli="' + card['image'] + '" ' +\
+                                 'onmouseover="show(this)" ' +\
+                                 'onmouseout="hide(this)"' +\
+                                 '>' + card['name'] + '</span>'
                     cards_txt += '</li>\n'
                 cards_txt += '</ul></li>\n'
         colours = ''
