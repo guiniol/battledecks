@@ -7,6 +7,10 @@ ul {
     margin-right: 20%;
 }
 
+.deck {
+    margin-bottom: 3em;
+}
+
 .deckheader {
     height: 100px;
     line-height: 100px;
