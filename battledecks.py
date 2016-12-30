@@ -169,12 +169,17 @@ def show_decks():
                     cards_txt += '<span class="cardname">' + card['name'] + '</span>'
                     cards_txt += '</li>\n'
                 cards_txt += '</ul></li>\n'
+        colours = ''
+        for c in deck.colour:
+            colours += '<img src="' +\
+                       url_for('static', filename='img/' + c + '.svg') +\
+                       '" class="manasymbol"/>'
         decks.append((deck.name,
                       deck.thumb,
                       deck.url,
                       deck.timestamp,
                       deck.description,
-                      deck.colour,
+                      colours,
                       deck.version,
                       deck.active,
                       cards_txt))

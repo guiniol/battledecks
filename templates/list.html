@@ -18,7 +18,7 @@
                 <div class="deckheader">
                     <img class="deckimage" src="data:image/png;base64,{{ thumb }}"/>
                     <span class="deckname">{{ name }}</span>
-                    <span class="deckcolour" deckcolour="{{ colour }}"></span>
+                    <span class="deckcolour">{{ colour|safe }}</span>
                 </div>
                 <br/>
                 <div>{{ description }}</div>
