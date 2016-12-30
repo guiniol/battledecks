@@ -155,7 +155,10 @@ def csrf_protect():
 @app.route('/')
 def show_decks():
     decks = []
-    for deck in BattleDecks.query.all():
+    shown_decks = []
+    for deck in BattleDecks.query.order_by(desc(BattleDecks.timestamp)).all():
+        if deck.name in shown_decks:
+            continue
         cards = {}
         for card in DeckCards.query.filter_by(deck=deck.id).all():
             ucard = UniqueCards.query.filter_by(id=card.card).first()
@@ -193,6 +196,7 @@ def show_decks():
                       deck.version,
                       deck.active,
                       cards_txt))
+        shown_decks.append(deck.name)
     response = make_response(render_template('list.html', decks=decks))
     return response
 
