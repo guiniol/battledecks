@@ -15,9 +15,11 @@
             <br/>
             {% for name, thumb, url, timestamp, description, colour, version, active, cards in decks %}
             <div class="deck">
-                <img src="data:image/png;base64,{{ thumb }}"/>
-                <span class="deckname">{{ name }}</span>
-                <span class="deckcolour" deckcolour="{{ colour }}"></span>
+                <div class="deckheader">
+                    <img class="deckimage" src="data:image/png;base64,{{ thumb }}"/>
+                    <span class="deckname">{{ name }}</span>
+                    <span class="deckcolour" deckcolour="{{ colour }}"></span>
+                </div>
                 <br/>
                 <div>{{ description }}</div>
                 <br/>
