@@ -31,11 +31,12 @@ db = SQLAlchemy(app)
 base_url = 'http://www.cardkingdom.com/catalog/shop/battle-decks'
 google_search = 'https://www.google.fr/search?q=gatherer+'
 gatherer_base = 'http://gatherer.wizards.com'
-wizards_base = 'http://www.wizards.com/'
-gatherer_url = ['/Pages/Card/Details.aspx?multiverseid=',
-                '/Pages/Card/Details.aspx?name=',
-                'magic/autocard.asp?name=',
+wizards_base = 'http://www.wizards.com'
+gatherer_url = [gatherer_base + '/Pages/Card/Details.aspx?multiverseid=',
+                gatherer_base + '/Pages/Card/Details.aspx?name=',
+                wizards_base + '/magic/autocard.asp?name=',
                 ]
+gatherer_ext_url = 'http://gatherer.wizards.com/Pages/Card/' 
 
 card_re = re.compile(r'^(?P<quantity>[1-9]\d*) +(?P<name>.+)')
 
@@ -49,6 +50,7 @@ types_order = ['Creature',
                'Instant',
                'Sorcery',
                'Land']
+card_lang = 'English'
 
 cardkingdom_currentpage = '//ul[@class="pagination"]/li[@class="active"]'
 cardkingdom_decks = '//div[@class="productListWrapper sealedProduct"]'
@@ -61,6 +63,8 @@ gatherer_cardname = '//span[contains(@id, "subtitleDisplay")]/text()'
 gatherer_cardcolour = '//div[contains(@id, "manaRow")]/div[@class="value"]/img'
 gatherer_cardtype = '//div[contains(@id, "typeRow")]/div[@class="value"]/text()'
 gatherer_cardimg = '//img[contains(@id, "cardImage")]'
+gatherer_language = '//a[contains(@id,"LanguagesLink")]'
+gatherer_english = '//table[@class="cardList"]/tr/td/a[contains(@id, "cardTitle")]'
 
 
 class BattleDecks(db.Model):
@@ -274,34 +278,51 @@ def make_card(name):
     for res in tree.xpath(google_result):
         href = res.get('href')
         href = unquote(href[7:].split('&')[0])
-        if href.startswith(gatherer_base) or href.startswith(wizards_base):
-            dobreak = False
-            for url in gatherer_url:
-                if url in href:
-                    dobreak = True
-                    break
-            if dobreak:
+        do_break = False
+        for url in gatherer_url:
+            if href.startswith(url):
+                do_break = True
                 break
+        if do_break:
+            break
         href = ''
 
+    old_href = href
     info = requests.get(href)
     infotree = html.fromstring(info.content)
-    cardname = infotree.xpath(gatherer_cardname)[0].strip()
-    dbCard = UniqueCards.query.filter_by(name=cardname).first()
-    if dbCard is None:
-        cardcolour = set()
-        for colour in infotree.xpath(gatherer_cardcolour):
-            cardcolour.add(colour.get('alt'))
-        cardcolour = filter_colour(cardcolour)
-        cardtype = infotree.xpath(gatherer_cardtype)[0].split('—')[0].strip()
-        cardtype, basic = filter_type(cardtype)
-        cardimage = infotree.xpath(gatherer_cardimg)[0].get('src')
-        cardimage = gatherer_base + cardimage[5:]
-        dbCard = UniqueCards(cardname, cardcolour, cardtype, basic, cardimage)
-        db.session.add(dbCard)
-        db.session.commit()
-        print '  New card: %s' % cardname
-    return dbCard
+    href = infotree.xpath(gatherer_language)[0].get('href')
+    href = gatherer_ext_url + href
+    info = requests.get(href)
+    infotree = html.fromstring(info.content)
+    href = ''
+    for lang in infotree.xpath(gatherer_english):
+        if lang.getparent().getnext().xpath('text()')[0].strip() == card_lang:
+            href = gatherer_ext_url + lang.get('href')
+            break
+    if href == '':
+        href = old_href
+
+    try:
+        info = requests.get(href)
+        infotree = html.fromstring(info.content)
+        cardname = infotree.xpath(gatherer_cardname)[0].strip()
+        dbCard = UniqueCards.query.filter_by(name=cardname).first()
+        if dbCard is None:
+            cardcolour = set()
+            for colour in infotree.xpath(gatherer_cardcolour):
+                cardcolour.add(colour.get('alt'))
+            cardcolour = filter_colour(cardcolour)
+            cardtype = infotree.xpath(gatherer_cardtype)[0].split('—')[0].strip()
+            cardtype, basic = filter_type(cardtype)
+            cardimage = infotree.xpath(gatherer_cardimg)[0].get('src')
+            cardimage = gatherer_base + cardimage[5:]
+            dbCard = UniqueCards(cardname, cardcolour, cardtype, basic, cardimage)
+            db.session.add(dbCard)
+            db.session.commit()
+            print '  New card: %s' % cardname
+        return dbCard
+    except:
+        print href
 
 def filter_colour(colours):
     to_discard = set()
