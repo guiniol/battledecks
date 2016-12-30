@@ -284,7 +284,7 @@ def make_card(name):
         href = unquote(href[7:].split('&')[0])
         do_break = False
         for url in gatherer_url:
-            if href.startswith(url):
+            if href.lower().startswith(url.lower()):
                 do_break = True
                 break
         if do_break:
