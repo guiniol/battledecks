@@ -5,6 +5,7 @@ ul {
 .comfy {
     margin-left: 10%;
     margin-right: 20%;
+    margin-bottom: 100px;
 }
 
 .deck {
@@ -54,6 +55,7 @@ ul {
 .popupimage {
     position: absolute;
     margin-left: 10%;
+    bottom: -150px;
     z-index: 999;
 }
 
