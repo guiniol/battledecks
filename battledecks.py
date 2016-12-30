@@ -333,8 +333,9 @@ def filter_colour(colours):
             to_discard.add(colour)
             to_add.add('Any')
         except:
+            to_add = to_add.union(colour.split())
             continue
-    colours = colours.union(to_add) - to_discard
+    colours = to_add - to_discard
     text = ''
     for w, a in zip(colours_order, colours_abbrv):
         if w in colours:
