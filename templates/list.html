@@ -6,7 +6,7 @@
     </head>
     <body>
         <div class="comfy">
-            <h1>List of battle decks</h1>
+            <h1>List of battle decks from <a href="http://www.cardkingdom.com/catalog/shop/battle-decks">CardKingdom</a></h1>
             This page is not affiliated in any way with CardKingdom.
             <br/>
             Their battle decks are what Wizards should be selling as intro packs.
@@ -17,8 +17,9 @@
             <div class="deck">
                 <div class="deckheader">
                     <img class="deckimage" src="data:image/png;base64,{{ thumb }}"/>
-                    <span class="deckname">{{ name }}</span>
-                    <span class="deckcolour">{{ colour|safe }}</span>
+                    <span class="deckname titletext">{{ name }}</span>
+                    <span class="deckcolour titletext">{{ colour|safe }}</span>
+                    <span class="buylink titletext">{% if active %}<a href="{{ url }}">Buy on CardKingdom</a>{% else %}Not available on CardKingdom{% endif %}</span>
                 </div>
                 <br/>
                 <div>{{ description }}</div>
