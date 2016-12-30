@@ -46,6 +46,9 @@ ul {
 
 .cardquantity {
     margin-right: 2%;
+    float: left;
+    width: 2%;
+    text-align: right;
 }
 
 .cardname {
