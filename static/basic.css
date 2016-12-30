@@ -1,3 +1,7 @@
+ul {
+    list-style: none;
+}
+
 .comfy {
     margin-left: 10%;
     margin-right: 20%;
@@ -21,5 +25,17 @@
 
 .manasymbol {
     height: 18pt;
+}
+
+.cardtypelist {
+    margin-bottom: 1em;
+}
+
+.cardtype {
+    font-weight: bold;
+}
+
+.cardquantity {
+    margin-right: 2%;
 }
 

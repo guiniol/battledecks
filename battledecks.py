@@ -161,7 +161,7 @@ def show_decks():
         cards_txt = ''
         for types in types_order:
             if types in cards:
-                cards_txt += '<li><span class="cardtype">' + types + '</span>\n'
+                cards_txt += '<li class="cardtypelist"><span class="cardtype">' + types + '</span>\n'
                 cards_txt += '<ul class="cardlist">\n'
                 for card in cards[types]:
                     cards_txt += '<li class="carddesc" oli="' + card['image'] + '">'
