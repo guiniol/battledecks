@@ -11,6 +11,19 @@
             <br/>
             Their battle decks are what Wizards should be selling as intro packs.
             This page is meant to help search through the deck as well as archive the old ones they are not selling anymore.
+            <br/>
+            <br/>
+            {% for name, thumb, url, timestamp, description, colour, version, active, cards in decks %}
+            <h1>{{ name }}</h1>
+            <div>{{ description }}</div>
+            <br/>
+            <div>
+                <ul>
+                    {{ cards|safe }}
+                </ul>
+            </div>
+            <br/>
+            {% endfor %}
         </div>
     </body>
 </html>

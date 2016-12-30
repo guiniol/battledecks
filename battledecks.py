@@ -39,8 +39,16 @@ gatherer_url = ['/Pages/Card/Details.aspx?multiverseid=',
 
 card_re = re.compile(r'^(?P<quantity>[1-9]\d*) +(?P<name>.+)')
 
+n_cards = 60
 colours_order = ['White', 'Blue', 'Black', 'Red', 'Green', 'Colorless', 'Any']
 colours_abbrv = ['W', 'U', 'B', 'R', 'G', 'C', 'A']
+types_order = ['Creature',
+               'Artifact',
+               'Enchantment',
+               'Planeswalker',
+               'Instant',
+               'Sorcery',
+               'Land']
 
 cardkingdom_currentpage = '//ul[@class="pagination"]/li[@class="active"]'
 cardkingdom_decks = '//div[@class="productListWrapper sealedProduct"]'
@@ -54,7 +62,6 @@ gatherer_cardcolour = '//div[contains(@id, "manaRow")]/div[@class="value"]/img'
 gatherer_cardtype = '//div[contains(@id, "typeRow")]/div[@class="value"]/text()'
 gatherer_cardimg = '//img[contains(@id, "cardImage")]'
 
-n_cards = 60
 
 class BattleDecks(db.Model):
     __tablename__ = 'battledecks'
@@ -142,47 +149,39 @@ def csrf_protect():
 
 
 @app.route('/')
-def show_model():
-    session = request.cookies.get('session')
-    if session is None:
-        session = str(uuid4())
-    try:
-        UUID(session)
-    except:
-        return problem('corrupted session', None, None, session)
-    nick = ''
-    nickDB = Nicknames.query.filter_by(session=session).first()
-    if nickDB:
-        nick = nickDB.nick
-    req_id = str(uuid4())
-    model_id = choose_model(session)
-    if model_id == -1:
-        response = make_response(render_template('congrats.html',
-                                                 max_models=max_models))
-        response.set_cookie('session', session)
-        return response
-
-    cleanup_requests()
-
-    model = generate_model(model_id)
-    reqDB = ActiveRequest(req_id, session, model_id)
-    db.session.add(reqDB)
-    db.session.commit()
-    scores = kappa_average(session)
-    n_others = len(scores)
-    score = sum(scores) / n_others * 100
-    csrf_token = uuid4()
-    response = make_response(render_template('model.html',
-                                             model=model,
-                                             model_id=model_id,
-                                             req_id=req_id,
-                                             score='%.2f' % score,
-                                             n_others=n_others,
-                                             session=session,
-                                             csrf_token=csrf_token))
-    response.set_cookie('session', session)
-    response.set_cookie('nick', nick)
-    response.set_cookie('_csrf_token', csrf_token)
+def show_decks():
+    decks = []
+    for deck in BattleDecks.query.all():
+        cards = {}
+        for card in DeckCards.query.filter_by(deck=deck.id).all():
+            ucard = UniqueCards.query.filter_by(id=card.card).first()
+            cards.setdefault(ucard.type, []).append({'name': ucard.name,
+                                                     'quantity': str(card.quantity),
+                                                     'basic': str(ucard.basic),
+                                                     'image': ucard.image,})
+        cards_txt = ''
+        for types in types_order:
+            if types in cards:
+                cards_txt += '<li><span class="cardtype">' + types + '</span>\n'
+                cards_txt += '<ul class="cardlist">\n'
+                for card in cards[types]:
+                    cards_txt += '<li class="carddesc" ' +\
+                                 'basic="' + card['basic'] + '" ' +\
+                                 'oli="' + card['image'] + '">'
+                    cards_txt += '<span class="cardquantity">' + card['quantity'] + '</span>'
+                    cards_txt += '<span class="cardname">' + card['name'] + '</span>'
+                    cards_txt += '</li>\n'
+                cards_txt += '</ul></li>\n'
+        decks.append((deck.name,
+                      deck.thumb,
+                      deck.url,
+                      deck.timestamp,
+                      deck.description,
+                      deck.colour,
+                      deck.version,
+                      deck.active,
+                      cards_txt))
+    response = make_response(render_template('list.html', decks=decks))
     return response
 
 def update_db():
