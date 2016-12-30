@@ -15,7 +15,7 @@ from sqlalchemy import desc
 import os
 from uuid import uuid4, UUID
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 from lxml import html
 import base64
@@ -186,7 +186,7 @@ def show_decks():
         decks.append((deck.name,
                       deck.thumb,
                       deck.url,
-                      deck.timestamp,
+                      deck.timestamp.date(),
                       deck.description,
                       deck.colour,
                       colours,
@@ -374,6 +374,85 @@ def check_decks():
             n += card.quantity
         if not n == n_cards:
             print 'problem with deck %s: %d cards' % (deck.name, n)
+
+def add_from_file(filename, date):
+    diff = timedelta(seconds=1)
+    title = ''
+    url = ''
+    uniquecards = {}
+    check = 0
+
+    with open(filename, 'r') as fd:
+        for line in fd.readlines():
+            if line == '\n':
+                if check != n_cards:
+                    print ' -> Deck is incomplete, skipping'
+                    title = ''
+                    url = ''
+                    uniquecards = {}
+                    check = 0
+                    continue
+
+                old_deck = BattleDecks.query.filter_by(name=title)\
+                                            .order_by(desc(BattleDecks.version))\
+                                            .first()
+                if old_deck:
+                    is_new = False
+                    for card in DeckCards.query.filter_by(deck=old_deck.id):
+                        if (card.card not in uniquecards) or\
+                           (uniquecards[card.card] != card.quantity):
+                            is_new = True
+                            print ' -> Deck has a new version: v%s' % (old_deck.version + 1)
+                            break
+                else:
+                    is_new = True
+                    print ' -> Deck is new'
+
+                if is_new:
+                    if old_deck:
+                        thumb = old_deck.thumb
+                        description = old_deck.description
+                    else:
+                        thumb = ''
+                        description = ''
+                    dbDeck = BattleDecks(title, url, description, thumb)
+                    dbDeck.colour = combine_colours(uniquecards)
+                    if old_deck:
+                        dbDeck.version = old_deck.version + 1
+                    dbDeck.timestamp = date
+                    db.session.add(dbDeck)
+                    db.session.commit()
+                    for card, quantity in uniquecards.items():
+                        dbDeckCard = DeckCards(card, dbDeck.id, quantity)
+                        db.session.add(dbDeckCard)
+                else:
+                    if old_deck.timestamp > date:
+                        old_deck.timestamp = date
+                    print ' -> Deck is up to date'
+
+                db.session.commit()
+
+                date = date - diff
+                title = ''
+                url = ''
+                uniquecards = {}
+                check = 0
+                continue
+
+            if title == '':
+                title = line.strip()
+                print 'Checking deck %s' % title
+                continue
+
+            if url == '':
+                url = line.strip()
+                continue
+
+            m = re.search(card_re, line.strip())
+            quantity = int(m.group('quantity'))
+            card = make_card(m.group('name'))
+            uniquecards[card.id] = quantity
+            check += quantity
 
 
 if __name__ == '__main__':
