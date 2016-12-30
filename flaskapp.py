@@ -11,6 +11,7 @@ from flask import Flask,\
                   request,\
                   url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
 import os
 from uuid import uuid4, UUID
 import random
@@ -53,23 +54,25 @@ gatherer_cardcolour = '//div[contains(@id, "manaRow")]/div[@class="value"]/img'
 gatherer_cardtype = '//div[contains(@id, "typeRow")]/div[@class="value"]/text()'
 gatherer_cardimg = '//img[contains(@id, "cardImage")]'
 
+n_cards = 60
+
 class BattleDecks(db.Model):
     __tablename__ = 'battledecks'
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime)
     name = db.Column(db.Text)
     url = db.Column(db.Text)
-    desc = db.Column(db.Text)
+    description = db.Column(db.Text)
     thumb = db.Column(db.Text)
     colour = db.Column(db.String(7))
     version = db.Column(db.Integer)
     active = db.Column(db.Boolean)
 
-    def __init__(self, name, url, desc, thumb, colour='', version=1, active=True):
+    def __init__(self, name, url, description, thumb, colour='', version=1, active=True):
         self.timestamp = datetime.now()
         self.name = name
         self.url = url
-        self.desc = desc
+        self.description = description
         self.thumb = thumb
         self.colour = colour
         self.version = version
@@ -81,7 +84,7 @@ class BattleDecks(db.Model):
                                                       self.timestamp,
                                                       self.active,
                                                       self.url,
-                                                      self.desc,
+                                                      self.description,
                                                       self.thumb)
 
 class UniqueCards(db.Model):
@@ -192,34 +195,58 @@ def update_db():
         for deck in decks:
             a = deck.xpath(cardkingdom_link)[0]
             title = a.xpath('text()')[0].split(':', 1)[1].strip()
-            active_decks.append(title)
-            res = BattleDecks.query.filter_by(name=title).first()
-            if res:
-                continue
-
-            print 'Adding deck %s' % title
+            print 'Checking deck %s' % title
             thumb = deck.xpath(cardkingdom_thumb)[0].xpath('a/img')[0].get('src')
             thumb = requests.get(thumb)
             thumb = base64.b64encode(thumb.content)
             url = a.get('href')
             details = deck.xpath(cardkingdom_details)
-            desc = ''
-            cards = []
-            uniquecards = []
-            dbDeck = BattleDecks(title, url, desc, thumb)
-            db.session.add(dbDeck)
-            db.session.commit()
+            description = ''
+            uniquecards = {}
+            check = 0
             for d in details:
                 m = re.search(card_re, d.strip())
                 if m:
-                    card, uniquecard = make_card(dbDeck.id,
-                                                 m.group('name'),
-                                                 int(m.group('quantity')))
-                    cards.append(card)
-                    uniquecards.append(uniquecard)
+                    quantity = int(m.group('quantity'))
+                    card = make_card(m.group('name'))
+                    uniquecards[card.id] = quantity
+                    check += quantity
                 else:
-                    desc += d
-            dbDeck.colour = combine_colours(uniquecards)
+                    description += d
+            if check != n_cards:
+                print ' -> Deck is incomplete, skipping'
+                continue
+
+            old_deck = BattleDecks.query.filter_by(name=title)\
+                                        .order_by(desc(BattleDecks.version))\
+                                        .first()
+            if old_deck:
+                is_new = False
+                for card in DeckCards.query.filter_by(deck=old_deck.id):
+                    if (card.card not in uniquecards) or\
+                       (uniquecards[card.card] != card.quantity):
+                        is_new = True
+                        print ' -> Deck has a new version: v%s' % (old_deck.version + 1)
+                        break
+            else:
+                is_new = True
+                print ' -> Deck is new'
+
+            if is_new:
+                dbDeck = BattleDecks(title, url, description, thumb)
+                dbDeck.colour = combine_colours(uniquecards)
+                if old_deck:
+                    dbDeck.version = old_deck.version + 1
+                db.session.add(dbDeck)
+                db.session.commit()
+                for card, quantity in uniquecards.items():
+                    dbDeckCard = DeckCards(card, dbDeck.id, quantity)
+                    db.session.add(dbDeckCard)
+                active_decks.append(dbDeck.id)
+            else:
+                print ' -> Deck is up to date'
+                active_decks.append(old_deck.id)
+
             db.session.commit()
 
         next_li = tree.xpath(cardkingdom_currentpage)[0].getnext()
@@ -227,12 +254,13 @@ def update_db():
             break
         page_url = next_li.xpath('a')[0].get('href')
     for deck in BattleDecks.query.all():
-        if deck.name in active_decks:
+        if deck.id in active_decks:
             deck.active = True
         else:
             deck.active = False
+    db.session.commit()
 
-def make_card(deck, name, quantity):
+def make_card(name):
     search = requests.get(google_search + '+'.join(name.split()))
     tree = html.fromstring(search.content)
     href = ''
@@ -266,9 +294,7 @@ def make_card(deck, name, quantity):
         db.session.add(dbCard)
         db.session.commit()
         print '  New card: %s' % cardname
-    dbDeckCard = DeckCards(dbCard.id, deck, quantity)
-    db.session.add(dbDeckCard)
-    return dbDeckCard, dbCard
+    return dbCard
 
 def filter_colour(colours):
     to_discard = set()
@@ -302,7 +328,8 @@ def filter_type(types):
 def combine_colours(cards):
     colours = set()
     for card in cards:
-        for c in card.colour:
+        dbCard = UniqueCards.query.filter_by(id=card).first()
+        for c in dbCard.colour:
             colours.add(c)
     text = ''
     for c in colours_abbrv:
@@ -315,11 +342,10 @@ def check_decks():
         n = 0
         for card in DeckCards.query.filter_by(deck=deck.id):
             n += card.quantity
-        if not n == 60:
+        if not n == n_cards:
             print 'problem with deck %s: %d cards' % (deck.name, n)
 
 
 if __name__ == '__main__':
-    print 'Checking for new decks'
     update_db()
 
