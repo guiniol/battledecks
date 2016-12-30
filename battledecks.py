@@ -175,14 +175,16 @@ def show_decks():
                 cards_txt += '</ul></li>\n'
         colours = ''
         for c in deck.colour:
-            colours += '<img src="' +\
-                       url_for('static', filename='img/' + c + '.svg') +\
-                       '" class="manasymbol"/>'
+            if c != 'A':
+                colours += '<img src="' +\
+                           url_for('static', filename='img/' + c + '.svg') +\
+                           '" class="manasymbol"/>'
         decks.append((deck.name,
                       deck.thumb,
                       deck.url,
                       deck.timestamp,
                       deck.description,
+                      deck.colour,
                       colours,
                       deck.version,
                       deck.active,
@@ -303,14 +305,15 @@ def make_card(name):
 
 def filter_colour(colours):
     to_discard = set()
+    to_add = set()
     for colour in colours:
         try:
-            int(c)
-            to_discard.add(c)
-            colours.add('Any')
+            int(colour)
+            to_discard.add(colour)
+            to_add.add('Any')
         except:
             continue
-    colours = colours - to_discard
+    colours = colours.union(to_add) - to_discard
     text = ''
     for w, a in zip(colours_order, colours_abbrv):
         if w in colours:

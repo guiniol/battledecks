@@ -14,12 +14,12 @@
             This page is meant to help search through the deck as well as archive the old ones they are not selling anymore.
             <br/>
             <br/>
-            {% for name, thumb, url, timestamp, description, colour, version, active, cards in decks %}
+            {% for name, thumb, url, timestamp, description, colour, colours, version, active, cards in decks %}
             <div class="deck">
                 <div class="deckheader">
                     <img class="deckimage" src="data:image/png;base64,{{ thumb }}"/>
                     <span class="deckname titletext">{{ name }}</span>
-                    <span class="deckcolour titletext">{{ colour|safe }}</span>
+		    <span class="deckcolour titletext" dc="{{ colour }}">{{ colours|safe }}</span>
                     <span class="buylink titletext">{% if active %}<a href="{{ url }}">Buy on CardKingdom</a>{% else %}Not available on CardKingdom{% endif %}</span>
                 </div>
                 <br/>
