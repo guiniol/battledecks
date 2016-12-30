@@ -157,7 +157,6 @@ def show_decks():
             ucard = UniqueCards.query.filter_by(id=card.card).first()
             cards.setdefault(ucard.type, []).append({'name': ucard.name,
                                                      'quantity': str(card.quantity),
-                                                     'basic': str(ucard.basic),
                                                      'image': ucard.image,})
         cards_txt = ''
         for types in types_order:
@@ -165,9 +164,7 @@ def show_decks():
                 cards_txt += '<li><span class="cardtype">' + types + '</span>\n'
                 cards_txt += '<ul class="cardlist">\n'
                 for card in cards[types]:
-                    cards_txt += '<li class="carddesc" ' +\
-                                 'basic="' + card['basic'] + '" ' +\
-                                 'oli="' + card['image'] + '">'
+                    cards_txt += '<li class="carddesc" oli="' + card['image'] + '">'
                     cards_txt += '<span class="cardquantity">' + card['quantity'] + '</span>'
                     cards_txt += '<span class="cardname">' + card['name'] + '</span>'
                     cards_txt += '</li>\n'
