@@ -14,13 +14,18 @@
             <br/>
             <br/>
             {% for name, thumb, url, timestamp, description, colour, version, active, cards in decks %}
-            <h1>{{ name }}</h1>
-            <div>{{ description }}</div>
-            <br/>
-            <div>
-                <ul>
-                    {{ cards|safe }}
-                </ul>
+            <div class="deck">
+                <img src="data:image/png;base64,{{ thumb }}"/>
+                <span class="deckname">{{ name }}</span>
+                <span class="deckcolour" deckcolour="{{ colour }}"></span>
+                <br/>
+                <div>{{ description }}</div>
+                <br/>
+                <div>
+                    <ul>
+                        {{ cards|safe }}
+                    </ul>
+                </div>
             </div>
             <br/>
             {% endfor %}
