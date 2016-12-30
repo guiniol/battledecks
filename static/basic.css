@@ -31,6 +31,10 @@ ul {
     height: 18pt;
 }
 
+.deckdescription {
+    width: 60%;
+}
+
 .cardtypelist {
     margin-bottom: 1em;
 }

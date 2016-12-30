@@ -23,9 +23,9 @@
                     <span class="buylink titletext">{% if active %}<a href="{{ url }}">Buy on CardKingdom</a>{% else %}Not available on CardKingdom{% endif %}</span>
                 </div>
                 <br/>
-                <div>{{ description }}</div>
+                <div class="deckdescription">{{ description }}</div>
                 <br/>
-                <div>
+                <div class="deckcardlist">
                     <ul>
                         {{ cards|safe }}
                     </ul>
