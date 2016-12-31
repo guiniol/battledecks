@@ -1,3 +1,11 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
 ul {
     list-style: none;
 }
@@ -62,3 +70,14 @@ ul {
     z-index: 999;
 }
 
+.floatmenu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 18%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+    box-sizing: border-box;
+    border: 10px solid lightblue;
+}
