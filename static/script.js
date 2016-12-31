@@ -33,46 +33,42 @@ function toggle(e) {
 function update_filter(e) {
 	var elems = document.getElementsByClassName("deck");
 	var childs = e.children;
-	var show = [];
-	var hide = [];
-	var neutral = []
+	var showit = [];
+	var hideit = [];
 	for (var c = 0; c < childs.length; ++c) {
 		if (childs[c].classList.contains("selectit")) {
-			show.push(childs[c].id)
+			showit.push(childs[c].id)
 		} else if (childs[c].classList.contains("avoidit")) {
-			hide.push(childs[c].id)
+			hideit.push(childs[c].id)
+		}
+	}
+	for (var idx = 0; idx < elems.length; ++idx) {
+		var dc = elems[idx].attributes.dc.value;
+		var found = false;
+		for (var i = 0; i < hideit.length; ++i) {
+			if (dc.indexOf(hideit[i]) > -1) {
+				found = true;
+				break;
+			}
+		}
+		if (found) {
+			elems[idx].style.display = "none";
+			continue;
+		}
+		for (var i = 0; i < showit.length; ++i) {
+			if (dc.indexOf(showit[i]) > -1) {
+				found = true
+				break;
+			}
+		}
+		if (found) {
+			elems[idx].style.display = "";
+			continue;
+		}
+		if (showit.length == 0) {
+			elems[idx].style.display = "";
 		} else {
-			neutral.push(childs[c].id);
-		}
-	}
-	for (var idx = 0; idx < elems.length; ++idx) {
-		elems[idx].style.display = "none";
-	}
-	for (var idx = 0; idx < elems.length; ++idx) {
-		dc = elems[idx].attributes.dc.value;
-		for (i = 0; i < neutral.length; ++i) {
-			if (dc.indexOf(neutral[i]) > -1) {
-				elems[idx].style.display = "";
-				break;
-			}
-		}
-	}
-	for (var idx = 0; idx < elems.length; ++idx) {
-		dc = elems[idx].attributes.dc.value;
-		for (i = 0; i < show.length; ++i) {
-			if (dc.indexOf(show[i]) > -1) {
-				elems[idx].style.display = "";
-				break;
-			}
-		}
-	}
-	for (var idx = 0; idx < elems.length; ++idx) {
-		dc = elems[idx].attributes.dc.value;
-		for (i = 0; i < hide.length; ++i) {
-			if (dc.indexOf(hide[i]) > -1) {
-				elems[idx].style.display = "none";
-				break;
-			}
+			elems[idx].style.display = "none";
 		}
 	}
 }
