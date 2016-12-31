@@ -1,18 +1,18 @@
 function show(e) {
-	c = e.children;
+	var c = e.children;
 	if (c.length > 0) {
 		c[0].style.display = "inline";
 	} else {
-		image = e.attributes.oli.value;
-		img = document.createElement("img");
+		var image = e.attributes.oli.value;
+		var img = document.createElement("img");
 		img.src = image;
-        img.className = "popupimage";
+		img.className = "popupimage";
 		e.appendChild(img);
 	}
 }
 
 function hide(e) {
-	c = e.children;
+	var c = e.children;
 	if (c.length > 0) {
 		c[0].style.display = "none";
 	}
@@ -31,12 +31,12 @@ function toggle(e) {
 }
 
 function update_filter(e) {
-	elems = document.getElementsByClassName("deck");
-	childs = e.children;
-	show = [];
-	hide = [];
-	neutral = []
-	for (c = 0; c < childs.length; ++c) {
+	var elems = document.getElementsByClassName("deck");
+	var childs = e.children;
+	var show = [];
+	var hide = [];
+	var neutral = []
+	for (var c = 0; c < childs.length; ++c) {
 		if (childs[c].classList.contains("selectit")) {
 			show.push(childs[c].id)
 		} else if (childs[c].classList.contains("avoidit")) {
@@ -45,10 +45,10 @@ function update_filter(e) {
 			neutral.push(childs[c].id);
 		}
 	}
-	for (idx = 0; idx < elems.length; ++idx) {
+	for (var idx = 0; idx < elems.length; ++idx) {
 		elems[idx].style.display = "none";
 	}
-	for (idx = 0; idx < elems.length; ++idx) {
+	for (var idx = 0; idx < elems.length; ++idx) {
 		dc = elems[idx].attributes.dc.value;
 		for (i = 0; i < neutral.length; ++i) {
 			if (dc.indexOf(neutral[i]) > -1) {
@@ -57,7 +57,7 @@ function update_filter(e) {
 			}
 		}
 	}
-	for (idx = 0; idx < elems.length; ++idx) {
+	for (var idx = 0; idx < elems.length; ++idx) {
 		dc = elems[idx].attributes.dc.value;
 		for (i = 0; i < show.length; ++i) {
 			if (dc.indexOf(show[i]) > -1) {
@@ -66,7 +66,7 @@ function update_filter(e) {
 			}
 		}
 	}
-	for (idx = 0; idx < elems.length; ++idx) {
+	for (var idx = 0; idx < elems.length; ++idx) {
 		dc = elems[idx].attributes.dc.value;
 		for (i = 0; i < hide.length; ++i) {
 			if (dc.indexOf(hide[i]) > -1) {
@@ -78,7 +78,7 @@ function update_filter(e) {
 }
 
 
-function createCookie(name,value,days) {
+function createCookie(name, value, days) {
 	if (days) {
 		var date = new Date();
 		date.setTime(date.getTime()+(days*24*60*60*1000));
