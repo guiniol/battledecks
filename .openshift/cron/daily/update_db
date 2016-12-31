@@ -1,6 +1,4 @@
 #!/bin/bash
 
-python2 ${OPENSHIFT_REPO_DIR}/battledecks.py 2>&1 | tee -a ${OPENSHIFT_LOG_DIR}/update_db.log >> /tmp/update_db.log
-
-cat /tmp/update_db.log | mail -r "Battle decks <no-reply@rhcloud.com>" -s "Battle decks update" "gui-gui@netcourrier.com"
+nohup ${OPENSHIFT_REPO_DIR}update_db.sh < /dev/null >> ${OPENSHIFT_LOG_DIR}update_db.log &
 
