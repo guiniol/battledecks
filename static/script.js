@@ -18,6 +18,66 @@ function hide(e) {
 	}
 }
 
+function toggle(e) {
+	if (e.classList.contains("selectit")) {
+		e.classList.remove("selectit");
+		e.classList.add("avoidit");
+	} else if (e.classList.contains("avoidit")) {
+		e.classList.remove("avoidit");
+	} else {
+		e.classList.add("selectit");
+	}
+	update_filter(e.parentElement);
+}
+
+function update_filter(e) {
+	elems = document.getElementsByClassName("deck");
+	childs = e.children;
+	show = [];
+	hide = [];
+	neutral = []
+	for (c = 0; c < childs.length; ++c) {
+		if (childs[c].classList.contains("selectit")) {
+			show.push(childs[c].id)
+		} else if (childs[c].classList.contains("avoidit")) {
+			hide.push(childs[c].id)
+		} else {
+			neutral.push(childs[c].id);
+		}
+	}
+	for (idx = 0; idx < elems.length; ++idx) {
+		elems[idx].style.display = "none";
+	}
+	for (idx = 0; idx < elems.length; ++idx) {
+		dc = elems[idx].attributes.dc.value;
+		for (i = 0; i < neutral.length; ++i) {
+			if (dc.indexOf(neutral[i]) > -1) {
+				elems[idx].style.display = "";
+				break;
+			}
+		}
+	}
+	for (idx = 0; idx < elems.length; ++idx) {
+		dc = elems[idx].attributes.dc.value;
+		for (i = 0; i < show.length; ++i) {
+			if (dc.indexOf(show[i]) > -1) {
+				elems[idx].style.display = "";
+				break;
+			}
+		}
+	}
+	for (idx = 0; idx < elems.length; ++idx) {
+		dc = elems[idx].attributes.dc.value;
+		for (i = 0; i < hide.length; ++i) {
+			if (dc.indexOf(hide[i]) > -1) {
+				elems[idx].style.display = "none";
+				break;
+			}
+		}
+	}
+}
+
+
 function createCookie(name,value,days) {
 	if (days) {
 		var date = new Date();

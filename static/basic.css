@@ -81,3 +81,17 @@ ul {
     box-sizing: border-box;
     border: 10px solid lightblue;
 }
+
+.manafilter {
+    height: 15pt;
+    opacity: 0.5;
+}
+
+.manafilter.selectit{
+    opacity: 1;
+}
+
+.manafilter.avoidit{
+    opacity: 0.2;
+}
+

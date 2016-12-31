@@ -15,12 +15,12 @@
             <br/>
             <br/>
             {% for name, thumb, url, timestamp, description, colour, colours, version, active, cards in decks %}
-            <div class="deck">
+            <div class="deck" dc="{{ colour }}">
                 <div class="deckheader">
                     <img class="deckimage" src="data:image/png;base64,{{ thumb }}"/>
                     <span class="deckname titletext">{{ name }}</span>
                     <span class="deckversion titletext">(v{{ version }})</span>
-                    <span class="deckcolour titletext" dc="{{ colour }}">{{ colours|safe }}</span>
+                    <span class="deckcolour titletext">{{ colours|safe }}</span>
                     <span class="buylink titletext">{% if active %}<a href="{{ url }}">Buy on CardKingdom</a>{% else %}Not available on CardKingdom{% endif %}</span>
                 </div>
                 <br/>
@@ -36,7 +36,15 @@
             {% endfor %}
         </div>
         <div class="floatmenu">
-            Menu here
+            <div class="colourfilter">
+                <img id="W" class="manafilter" src="{{ url_for('static', filename='img/W.svg') }}" onclick="toggle(this)"/>
+                <img id="U" class="manafilter" src="{{ url_for('static', filename='img/U.svg') }}" onclick="toggle(this)"/>
+                <img id="B" class="manafilter" src="{{ url_for('static', filename='img/B.svg') }}" onclick="toggle(this)"/>
+                <img id="R" class="manafilter" src="{{ url_for('static', filename='img/R.svg') }}" onclick="toggle(this)"/>
+                <img id="G" class="manafilter" src="{{ url_for('static', filename='img/G.svg') }}" onclick="toggle(this)"/>
+                <img id="C" class="manafilter" src="{{ url_for('static', filename='img/C.svg') }}" onclick="toggle(this)"/>
+                <img id="A" class="manafilter" src="{{ url_for('static', filename='img/A.svg') }}" onclick="toggle(this)"/>
+            </div>
         </div>
     </body>
 </html>
