@@ -20,6 +20,13 @@ ul {
     margin-bottom: 3em;
 }
 
+.deck.hideme {
+    visibility: collapse;
+    height: 0px;
+    margin-bottom: 0px;
+    padding: 0px;
+}
+
 .deckheader {
     height: 100px;
     line-height: 100px;
