@@ -21,7 +21,11 @@
                     <span class="deckname titletext">{{ name }}</span>
                     <span class="deckversion titletext">(v{{ version }})</span>
                     <span class="deckcolour titletext">{{ colours|safe }}</span>
-                    <span class="buylink titletext">{% if active %}<a href="{{ url }}">Buy on CardKingdom</a>{% else %}Not available on CardKingdom{% endif %}</span>
+                    <div class="titletext titlediv" id="{{ "-".join(name.lower().split()) }}">
+                        <div class="titlelink">{% if active %}<a href="{{ url }}">Buy on CardKingdom</a>{% else %}Not available on CardKingdom{% endif %}</div>
+                        <button id="add-export" class="titlelink" type="button" onclick="add_export(this.parentElement)">Add to export list</button>
+                        <button id="export-deck" class="titlelink" type="button" onclick="export_deck(this.parentElement)">Export this deck</button>
+                    </div>
                 </div>
                 <br/>
                 <div class="deckdescription">{{ description }}</div>
@@ -36,6 +40,8 @@
         </div>
         <div class="floatmenu">
             <div class="colourfilter">
+                Filter by colours:
+                <br/>
                 <img id="W" class="manafilter" src="{{ url_for('static', filename='img/W.svg') }}" onclick="toggle(this)"/>
                 <img id="U" class="manafilter" src="{{ url_for('static', filename='img/U.svg') }}" onclick="toggle(this)"/>
                 <img id="B" class="manafilter" src="{{ url_for('static', filename='img/B.svg') }}" onclick="toggle(this)"/>
@@ -44,6 +50,17 @@
                 <img id="C" class="manafilter" src="{{ url_for('static', filename='img/C.svg') }}" onclick="toggle(this)"/>
                 <img id="A" class="manafilter" src="{{ url_for('static', filename='img/A.svg') }}" onclick="toggle(this)"/>
                 <input id ="manaCB" type="checkbox" onclick="update_filter(this.parentElement)"/>all
+            </div>
+            <br/>
+            <div id="exportbuttons">
+                <button class="hitme" type="button" onclick="export_list(false)">Export</button>
+                <button class="hitme" type="button" onclick="export_list(true)">Combine &amp; export</button>
+                <br/>
+                <input id ="exportCB" type="checkbox" onclick="update_filter(this.parentElement)"/>remove basic lands
+            </div>
+            <div>
+                <ul id="exportlist">
+                </ul>
             </div>
         </div>
     </body>

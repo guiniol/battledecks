@@ -38,6 +38,17 @@ ul {
     bottom: 40%;
 }
 
+.titlediv {
+    display: inline-block;
+    bottom: 75%;
+}
+
+.titlelink {
+    line-height: 1em;
+    display: block;
+    margin-bottom: 3px;
+}
+
 .deckname {
     font-size: 22pt;
     font-weight: bold;
@@ -86,7 +97,9 @@ ul {
     overflow-y: auto;
     overflow-x: auto;
     box-sizing: border-box;
-    border: 10px solid lightblue;
+    border-left: 1px solid #333;
+    padding-top: 2em;
+    padding-left: 5px;
 }
 
 .manafilter {
@@ -112,3 +125,8 @@ ul {
     content: '';
 }
 
+.hitme {
+    margin: 0.5em 0.25em;
+    display: inline-block;
+    text-align: center;
+}

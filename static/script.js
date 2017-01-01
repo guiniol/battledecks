@@ -84,6 +84,14 @@ function update_filter(e) {
     }
 }
 
+function add_export(e) {
+}
+
+function export_deck(e) {
+}
+
+function export_list(combine) {
+}
 
 function createCookie(name, value, days) {
     if (days) {
