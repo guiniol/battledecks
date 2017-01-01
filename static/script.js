@@ -35,6 +35,7 @@ function update_filter(e) {
 	var childs = e.children;
 	var showit = [];
 	var hideit = [];
+    var combine = document.getElementById("manaCB").checked;
 	for (var c = 0; c < childs.length; ++c) {
 		if (childs[c].classList.contains("selectit")) {
 			showit.push(childs[c].id)
@@ -55,12 +56,22 @@ function update_filter(e) {
 			elems[idx].style.display = "none";
 			continue;
 		}
-		for (var i = 0; i < showit.length; ++i) {
-			if (dc.indexOf(showit[i]) > -1) {
-				found = true
-				break;
-			}
-		}
+        if (combine) {
+            found = true;
+            for (var i = 0; i < showit.length; ++i) {
+                if (dc.indexOf(showit[i]) < 0) {
+                    found = false;
+                    break;
+                }
+            }
+        } else{
+            for (var i = 0; i < showit.length; ++i) {
+                if (dc.indexOf(showit[i]) > -1) {
+                    found = true;
+                    break;
+                }
+            }
+        }
 		if (found) {
 			elems[idx].style.display = "";
 			continue;
