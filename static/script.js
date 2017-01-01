@@ -85,6 +85,24 @@ function update_filter(e) {
 }
 
 function add_export(e) {
+    var liname = e.id + "-li";
+    var li = document.getElementById(liname);
+    if (li === null) {
+        var ul = document.getElementById("exportlist");
+        var li = document.createElement("li");
+        li.setAttribute("id", liname);
+        var title = document.getElementById(e.id + "-title").innerHTML;
+        li.appendChild(document.createTextNode(title + "  "));
+        var button = document.createElement("button");
+        button.setAttribute("onclick", "remove_export(this.parentElement)");
+        button.appendChild(document.createTextNode("X"));
+        li.appendChild(button);
+        ul.appendChild(li);
+    }
+}
+
+function remove_export(e) {
+    e.parentElement.removeChild(e);
 }
 
 function export_deck(e) {
