@@ -138,6 +138,21 @@ class DeckCards(db.Model):
                                              self.card,
                                              self.deck)
 
+class TranslationCards(db.Model):
+    __tablename__ = 'translationcards'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text)
+    cardid = db.Column(db.Integer)
+    language = db.Column(db.String(2))
+
+    def __init__(self, name, cardid, language='ck'):
+        self.name = name
+        self.cardid = cardid
+        self.language = language
+
+    def __repr__(self):
+        return 'Card %s is %d in %s\n' % (self.name, self.cardid, self.language)
+
 
 @app.before_request
 def redirect_https():
@@ -281,9 +296,9 @@ def update_db():
     return buf
 
 def make_card(name):
-    dbCard = UniqueCards.query.filter_by(name=name).first()
-    if dbCard:
-        return dbCard
+    trCard = TranslationCards.query.filter_by(name=name).first()
+    if trCard:
+        return UniqueCards.query.filter_by(id=trCard.cardid).first()
     search = requests.get(google_search + '+'.join(name.split()))
     tree = html.fromstring(search.content)
     href = ''
@@ -331,7 +346,15 @@ def make_card(name):
             dbCard = UniqueCards(cardname, cardcolour, cardtype, basic, cardimage)
             db.session.add(dbCard)
             db.session.commit()
+            trCard = TranslationCards(name, dbCard.id)
+            db.session.add(trCard)
+            db.session.commit()
             print '  New card: %s' % cardname
+        trCard = TranslationCards.query.filter_by(cardid=dbCard.id).first()
+        if trCard is None:
+            trCard = TranslationCards(name, dbCard.id)
+            db.session.add(trCard)
+            db.session.commit()
         return dbCard
     except:
         print href
