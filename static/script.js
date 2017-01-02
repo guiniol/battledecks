@@ -107,6 +107,8 @@ function remove_export(e) {
 }
 
 function export_deck(e) {
+    var deckid = e.id;
+    window.open('/export/' + deckid);
 }
 
 function export_list(combine) {
