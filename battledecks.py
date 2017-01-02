@@ -22,7 +22,7 @@ import requests
 from lxml import html
 import base64
 import re
-from urllib import unquote
+from urllib import unquote, quote
 
 
 app = Flask(__name__)
@@ -161,13 +161,6 @@ def redirect_https():
         code = 301
         return redirect(url, code=code)
 
-@app.before_request
-def csrf_protect():
-    if request.method == 'POST':
-        token = request.cookies.get('_csrf_token')
-        if not token or token != request.form.get('_csrf_token'):
-            abort(403)
-
 
 @app.route('/')
 def show_decks():
@@ -212,6 +205,22 @@ def show_decks():
                       deck.active,
                       cards_txt))
     response = make_response(render_template('list.html', decks=decks))
+    return response
+
+@app.route('/export/<int:deckid>')
+def export(deckid):
+    deck = BattleDecks.query.filter_by(id=deckid).first()
+    result = deck.name + '\r\n'
+    result += deck.url + '\r\n'
+    result += deck.description + '\r\n'
+
+    for card in DeckCards.query.filter_by(deck=deckid).all():
+        ucard = UniqueCards.query.filter_by(id=card.card).first()
+        result += str(card.quantity) + ' ' + ucard.name + '\r\n'
+
+    response = make_response(result)
+    response.headers[bytes('Content-Disposition')] = bytes(('attachment; filename="' + deck.name + '.txt"').encode('utf-8'))
+    response.mimetype = 'text/plain'
     return response
 
 def update_db():
