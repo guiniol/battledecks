@@ -281,6 +281,9 @@ def update_db():
     return buf
 
 def make_card(name):
+    dbCard = UniqueCards.query.filter_by(name=name).first()
+    if dbCard:
+        return dbCard
     search = requests.get(google_search + '+'.join(name.split()))
     tree = html.fromstring(search.content)
     href = ''
