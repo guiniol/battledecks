@@ -201,7 +201,7 @@ def show_decks():
                            url_for('static', filename='img/' + c + '.svg') +\
                            '" class="manasymbol"/>'
         decks.append((deck.name,
-                      "-".join(deck.name.lower().split()),
+                      str(deck.id),
                       deck.thumb,
                       deck.url,
                       deck.timestamp.date(),

@@ -14,14 +14,14 @@
             This page is meant to help search through the deck as well as archive the old ones they are not selling anymore.
             <br/>
             <br/>
-            {% for name, nameid, thumb, url, timestamp, description, colour, colours, version, active, cards in decks %}
+            {% for name, deckid, thumb, url, timestamp, description, colour, colours, version, active, cards in decks %}
             <div class="deck" dc="{{ colour }}">
                 <div class="deckheader">
                     <img class="deckimage" src="data:image/png;base64,{{ thumb }}"/>
-                    <span class="deckname titletext" id="{{ nameid }}-title">{{ name }}</span>
+                    <span class="deckname titletext" id="{{ deckid }}-title">{{ name }}</span>
                     <span class="deckversion titletext">(v{{ version }})</span>
                     <span class="deckcolour titletext">{{ colours|safe }}</span>
-                    <div class="titletext titlediv" id="{{ nameid }}">
+                    <div class="titletext titlediv" id="{{ deckid }}">
                         <div class="titlelink">{% if active %}<a href="{{ url }}">Buy on CardKingdom</a>{% else %}Not available on CardKingdom{% endif %}</div>
                         <button id="add-export" class="titlelink" type="button" onclick="add_export(this.parentElement)">Add to export list</button>
                         <button id="export-deck" class="titlelink" type="button" onclick="export_deck(this.parentElement)">Export this deck</button>
