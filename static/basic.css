@@ -70,11 +70,14 @@ ul {
     font-weight: bold;
 }
 
+.cardlist {
+    margin-left: 2em;
+}
+
 .cardquantity {
-    margin-right: 2%;
-    float: left;
-    width: 2%;
+    width: 20%;
     text-align: right;
+    padding-right: 1em;
 }
 
 .cardname {

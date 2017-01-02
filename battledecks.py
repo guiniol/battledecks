@@ -169,17 +169,17 @@ def show_decks():
         for types in types_order:
             if types in cards:
                 cards_txt += '<li class="cardtypelist"><span class="cardtype">' + types + '</span>\n'
-                cards_txt += '<ul class="cardlist">\n'
+                cards_txt += '<table class="cardlist">\n'
                 for card in cards[types]:
-                    cards_txt += '<li class="carddesc">'
-                    cards_txt += '<span class="cardquantity">' + card['quantity'] + '</span>'
-                    cards_txt += '<span class="cardname"' +\
+                    cards_txt += '<tr class="carddesc">'
+                    cards_txt += '<td class="cardquantity">' + card['quantity'] + '</td>'
+                    cards_txt += '<td class="cardname"' +\
                                  'oli="' + card['image'] + '" ' +\
                                  'onmouseover="show(this)" ' +\
                                  'onmouseout="hide(this)"' +\
-                                 '>' + card['name'] + '</span>'
-                    cards_txt += '</li>\n'
-                cards_txt += '</ul></li>\n'
+                                 '>' + card['name'] + '</td>'
+                    cards_txt += '</tr>\n'
+                cards_txt += '</table></li>\n'
         colours = ''
         for c in deck.colour:
             if c != 'A':
