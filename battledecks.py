@@ -216,18 +216,61 @@ def show_decks():
 @app.route('/export/<int:deckid>')
 def export(deckid):
     deck = BattleDecks.query.filter_by(id=deckid).first()
-    result = deck.name + '\r\n'
-    result += deck.url + '\r\n'
-    result += deck.description + '\r\n'
+    decktxt = deck_txt(deckid)
+
+    response = make_response(decktxt)
+    response.headers[bytes('Content-Disposition')] = bytes(('attachment; filename="' + deck.name + '-v' + str(deck.version) + '.txt"').encode('utf-8'))
+    response.mimetype = 'text/plain'
+    return response
+
+@app.route('/exports/')
+def exports():
+    decks = request.args.getlist('id')
+    merge = request.args.get('merge')
+    nobasic = request.args.get('nobasic')
+
+    basic = True
+    if nobasic == '1':
+        basic = False
+
+    decktxt = ''
+    if merge == '1':
+        cards = {}
+        names = ''
+        for deck in decks:
+            names += BattleDecks.query.filter_by(id=deck).first().name
+            names += ' & '
+            for card in DeckCards.query.filter_by(deck=deck).all():
+                ucard = UniqueCards.query.filter_by(id=card.card).first()
+                if (not basic) and ucard.basic:
+                    continue
+                cards[ucard.name] = cards.get(ucard.name, 0) + card.quantity
+        decktxt += names[:-3] + '\r\n\r\n'
+        for card, quantity in sorted(cards.items(), key=lambda x: x[0]):
+            decktxt += str(quantity) + ' ' + card + '\r\n'
+    else:
+        for deck in decks:
+            decktxt += deck_txt(deck, basic)
+            decktxt += '\r\n'
+
+    response = make_response(decktxt)
+    response.headers[bytes('Content-Disposition')] = bytes(('attachment; filename="battledecks.txt"').encode('utf-8'))
+    response.mimetype = 'text/plain'
+    return response
+
+def deck_txt(deckid, basic=True):
+    deck = BattleDecks.query.filter_by(id=deckid).first()
+    decktxt = deck.name + '\r\n'
+    decktxt += deck.url + '\r\n'
+    decktxt += deck.description + '\r\n'
 
     for card in DeckCards.query.filter_by(deck=deckid).all():
         ucard = UniqueCards.query.filter_by(id=card.card).first()
-        result += str(card.quantity) + ' ' + ucard.name + '\r\n'
+        if (not basic) and ucard.basic:
+            continue
+        decktxt += str(card.quantity) + ' ' + ucard.name + '\r\n'
 
-    response = make_response(result)
-    response.headers[bytes('Content-Disposition')] = bytes(('attachment; filename="' + deck.name + '.txt"').encode('utf-8'))
-    response.mimetype = 'text/plain'
-    return response
+    return decktxt
 
 def update_db():
     page_url = base_url
@@ -305,6 +348,99 @@ def update_db():
             deck.active = False
     db.session.commit()
     return buf
+
+def add_from_file(filename, date):
+    diff = timedelta(seconds=1)
+    title = ''
+    url = ''
+    uniquecards = {}
+    check = 0
+
+    with open(filename, 'r') as fd:
+        for line in fd.readlines():
+            if line == '\n':
+                if check != n_cards:
+                    print ' -> Deck is incomplete (%d), skipping' % check
+                    title = ''
+                    url = ''
+                    uniquecards = {}
+                    check = 0
+                    continue
+
+                url = url.strip()
+                is_new = []
+                version = 0
+                thumb = ''
+                description = ''
+                o_deck = None
+                for old_deck in BattleDecks.query\
+                                           .filter_by(name=title)\
+                                           .order_by(BattleDecks.version)\
+                                           .all():
+                    version = max(version, old_deck.version)
+                    thumb = old_deck.thumb
+                    description = old_deck.description
+                    if url == '':
+                        url = old_deck.url
+                    this_new = True
+                    for card in DeckCards.query.filter_by(deck=old_deck.id):
+                        if (card.card not in uniquecards) or\
+                           (uniquecards[card.card] != card.quantity):
+                            this_new = False
+                            break
+                    is_new.append(this_new)
+                    if this_new:
+                        o_deck = old_deck
+
+                version += 1
+
+                if len(is_new) == []:
+                    print ' -> Deck is new'
+                    is_new = True
+                elif True in is_new:
+                    is_new = False
+                else:
+                    print ' -> Deck has a new version: v%s' % (version)
+                    is_new = True
+
+                if is_new:
+                    dbDeck = BattleDecks(title, url, description, thumb)
+                    dbDeck.colour = combine_colours(uniquecards)
+                    dbDeck.version = version
+                    dbDeck.timestamp = date
+                    db.session.add(dbDeck)
+                    db.session.commit()
+                    for card, quantity in uniquecards.items():
+                        dbDeckCard = DeckCards(card, dbDeck.id, quantity)
+                        db.session.add(dbDeckCard)
+                else:
+                    if o_deck.timestamp > date:
+                        o_deck.timestamp = date
+                    print ' -> Deck is up to date'
+
+                db.session.commit()
+
+                date = date - diff
+                title = ''
+                url = ''
+                uniquecards = {}
+                check = 0
+                continue
+
+            if title == '':
+                title = line.strip()
+                print 'Checking deck %s' % title
+                continue
+
+            if url == '':
+                url = line
+                continue
+
+            m = re.search(card_re, line.strip())
+            quantity = int(m.group('quantity'))
+            card = make_card(m.group('name'))
+            uniquecards[card.id] = quantity
+            check += quantity
 
 def make_card(name):
     trCard = TranslationCards.query.filter_by(name=name).first()
@@ -421,98 +557,6 @@ def check_decks():
         if not n == n_cards:
             print 'problem with deck %s: %d cards' % (deck.name, n)
 
-def add_from_file(filename, date):
-    diff = timedelta(seconds=1)
-    title = ''
-    url = ''
-    uniquecards = {}
-    check = 0
-
-    with open(filename, 'r') as fd:
-        for line in fd.readlines():
-            if line == '\n':
-                if check != n_cards:
-                    print ' -> Deck is incomplete (%d), skipping' % check
-                    title = ''
-                    url = ''
-                    uniquecards = {}
-                    check = 0
-                    continue
-
-                url = url.strip()
-                is_new = []
-                version = 0
-                thumb = ''
-                description = ''
-                o_deck = None
-                for old_deck in BattleDecks.query\
-                                           .filter_by(name=title)\
-                                           .order_by(BattleDecks.version)\
-                                           .all():
-                    version = max(version, old_deck.version)
-                    thumb = old_deck.thumb
-                    description = old_deck.description
-                    if url == '':
-                        url = old_deck.url
-                    this_new = True
-                    for card in DeckCards.query.filter_by(deck=old_deck.id):
-                        if (card.card not in uniquecards) or\
-                           (uniquecards[card.card] != card.quantity):
-                            this_new = False
-                            break
-                    is_new.append(this_new)
-                    if this_new:
-                        o_deck = old_deck
-
-                version += 1
-
-                if len(is_new) == []:
-                    print ' -> Deck is new'
-                    is_new = True
-                elif True in is_new:
-                    is_new = False
-                else:
-                    print ' -> Deck has a new version: v%s' % (version)
-                    is_new = True
-
-                if is_new:
-                    dbDeck = BattleDecks(title, url, description, thumb)
-                    dbDeck.colour = combine_colours(uniquecards)
-                    dbDeck.version = version
-                    dbDeck.timestamp = date
-                    db.session.add(dbDeck)
-                    db.session.commit()
-                    for card, quantity in uniquecards.items():
-                        dbDeckCard = DeckCards(card, dbDeck.id, quantity)
-                        db.session.add(dbDeckCard)
-                else:
-                    if o_deck.timestamp > date:
-                        o_deck.timestamp = date
-                    print ' -> Deck is up to date'
-
-                db.session.commit()
-
-                date = date - diff
-                title = ''
-                url = ''
-                uniquecards = {}
-                check = 0
-                continue
-
-            if title == '':
-                title = line.strip()
-                print 'Checking deck %s' % title
-                continue
-
-            if url == '':
-                url = line
-                continue
-
-            m = re.search(card_re, line.strip())
-            quantity = int(m.group('quantity'))
-            card = make_card(m.group('name'))
-            uniquecards[card.id] = quantity
-            check += quantity
 
 def reorder_versions():
     names = set()
@@ -524,7 +568,6 @@ def reorder_versions():
             d.version = version
             version += 1
     db.session.commit()
-
 
 def print_log(data):
     print data
