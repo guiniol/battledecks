@@ -165,6 +165,7 @@ def redirect_https():
 @app.route('/')
 def show_decks():
     decks = []
+    shown = set()
     for deck in BattleDecks.query.order_by(desc(BattleDecks.timestamp)).all():
         cards = {}
         for card in DeckCards.query.filter_by(deck=deck.id).all():
@@ -193,8 +194,12 @@ def show_decks():
                 colours += '<img src="' +\
                            url_for('static', filename='img/' + c + '.svg') +\
                            '" class="manasymbol"/>'
+        old = False
+        if deck.name in shown:
+            old = True
         decks.append((deck.name,
                       str(deck.id),
+                      old,
                       deck.thumb,
                       deck.url,
                       deck.timestamp.date(),
@@ -204,6 +209,7 @@ def show_decks():
                       deck.version,
                       deck.active,
                       cards_txt))
+        shown.add(deck.name)
     response = make_response(render_template('list.html', decks=decks))
     return response
 
