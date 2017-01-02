@@ -1,4 +1,4 @@
 #!/bin/bash
 
-nohup ${OPENSHIFT_REPO_DIR}update_db.sh < /dev/null >> ${OPENSHIFT_LOG_DIR}update_db.log &
+${OPENSHIFT_REPO_DIR}update_db.sh >> ${OPENSHIFT_LOG_DIR}update_db.log &
 

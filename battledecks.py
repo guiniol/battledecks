@@ -13,6 +13,8 @@ from flask import Flask,\
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 import os
+import sys
+from subprocess import Popen, PIPE
 from uuid import uuid4, UUID
 import random
 from datetime import datetime, timedelta
@@ -204,6 +206,7 @@ def show_decks():
 def update_db():
     page_url = base_url
     active_decks = []
+    buf = ''
     while True:
         page = requests.get(page_url)
         tree = html.fromstring(page.content)
@@ -211,7 +214,7 @@ def update_db():
         for deck in decks:
             a = deck.xpath(cardkingdom_link)[0]
             title = a.xpath('text()')[0].split(':', 1)[1].strip()
-            print 'Checking deck %s' % title
+            buf += print_log('Checking deck %s' % title)
             thumb = deck.xpath(cardkingdom_thumb)[0].xpath('a/img')[0].get('src')
             thumb = requests.get(thumb)
             thumb = base64.b64encode(thumb.content)
@@ -230,7 +233,7 @@ def update_db():
                 else:
                     description += d
             if check != n_cards:
-                print ' -> Deck is incomplete, skipping'
+                buf += print_log(' -> Deck is incomplete, skipping')
                 continue
 
             old_deck = BattleDecks.query.filter_by(name=title)\
@@ -242,11 +245,11 @@ def update_db():
                     if (card.card not in uniquecards) or\
                        (uniquecards[card.card] != card.quantity):
                         is_new = True
-                        print ' -> Deck has a new version: v%s' % (old_deck.version + 1)
+                        buf += print_log(' -> Deck has a new version: v%s' % (old_deck.version + 1))
                         break
             else:
                 is_new = True
-                print ' -> Deck is new'
+                buf += print_log(' -> Deck is new')
 
             if is_new:
                 dbDeck = BattleDecks(title, url, description, thumb)
@@ -260,7 +263,7 @@ def update_db():
                     db.session.add(dbDeckCard)
                 active_decks.append(dbDeck.id)
             else:
-                print ' -> Deck is up to date'
+                buf += print_log(' -> Deck is up to date')
                 active_decks.append(old_deck.id)
 
             db.session.commit()
@@ -275,6 +278,7 @@ def update_db():
         else:
             deck.active = False
     db.session.commit()
+    return buf
 
 def make_card(name):
     search = requests.get(google_search + '+'.join(name.split()))
@@ -459,7 +463,18 @@ def add_from_file(filename, date):
             uniquecards[card.id] = quantity
             check += quantity
 
+def print_log(data):
+    print data
+    return data + '\n'
+
 
 if __name__ == '__main__':
-    update_db()
+    buf = update_db()
+    if len(sys.argv) > 1:
+        p = Popen(['mail',
+                   '-r', 'Battle decks <no-reply@rhcloud.com>',
+                   '-s', 'Battle decks update',
+                   sys.argv[1]],
+                  stdin=PIPE)
+        p.communicate(input=buf)
 
