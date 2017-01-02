@@ -421,39 +421,53 @@ def add_from_file(filename, date):
         for line in fd.readlines():
             if line == '\n':
                 if check != n_cards:
-                    print ' -> Deck is incomplete, skipping'
+                    print ' -> Deck is incomplete (%d), skipping' % check
                     title = ''
                     url = ''
                     uniquecards = {}
                     check = 0
                     continue
 
-                old_deck = BattleDecks.query.filter_by(name=title)\
-                                            .order_by(desc(BattleDecks.version))\
-                                            .first()
-                if old_deck:
-                    is_new = False
+                url = url.strip()
+                is_new = []
+                version = 0
+                thumb = ''
+                description = ''
+                o_deck = None
+                for old_deck in BattleDecks.query\
+                                           .filter_by(name=title)\
+                                           .order_by(BattleDecks.version)\
+                                           .all():
+                    version = max(version, old_deck.version)
+                    thumb = old_deck.thumb
+                    description = old_deck.description
+                    if url == '':
+                        url = old_deck.url
+                    this_new = True
                     for card in DeckCards.query.filter_by(deck=old_deck.id):
                         if (card.card not in uniquecards) or\
                            (uniquecards[card.card] != card.quantity):
-                            is_new = True
-                            print ' -> Deck has a new version: v%s' % (old_deck.version + 1)
+                            this_new = False
                             break
-                else:
-                    is_new = True
+                    is_new.append(this_new)
+                    if this_new:
+                        o_deck = old_deck
+
+                version += 1
+
+                if len(is_new) == []:
                     print ' -> Deck is new'
+                    is_new = True
+                elif True in is_new:
+                    is_new = False
+                else:
+                    print ' -> Deck has a new version: v%s' % (version)
+                    is_new = True
 
                 if is_new:
-                    if old_deck:
-                        thumb = old_deck.thumb
-                        description = old_deck.description
-                    else:
-                        thumb = ''
-                        description = ''
                     dbDeck = BattleDecks(title, url, description, thumb)
                     dbDeck.colour = combine_colours(uniquecards)
-                    if old_deck:
-                        dbDeck.version = old_deck.version + 1
+                    dbDeck.version = version
                     dbDeck.timestamp = date
                     db.session.add(dbDeck)
                     db.session.commit()
@@ -461,8 +475,8 @@ def add_from_file(filename, date):
                         dbDeckCard = DeckCards(card, dbDeck.id, quantity)
                         db.session.add(dbDeckCard)
                 else:
-                    if old_deck.timestamp > date:
-                        old_deck.timestamp = date
+                    if o_deck.timestamp > date:
+                        o_deck.timestamp = date
                     print ' -> Deck is up to date'
 
                 db.session.commit()
@@ -480,7 +494,7 @@ def add_from_file(filename, date):
                 continue
 
             if url == '':
-                url = line.strip()
+                url = line
                 continue
 
             m = re.search(card_re, line.strip())
@@ -488,6 +502,18 @@ def add_from_file(filename, date):
             card = make_card(m.group('name'))
             uniquecards[card.id] = quantity
             check += quantity
+
+def reorder_versions():
+    names = set()
+    for d in BattleDecks.query.all():
+        names.add(d.name)
+    for name in names:
+        version = 1
+        for d in BattleDecks.query.filter_by(name=name).order_by(BattleDecks.timestamp).all():
+            d.version = version
+            version += 1
+    db.session.commit()
+
 
 def print_log(data):
     print data
