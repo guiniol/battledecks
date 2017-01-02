@@ -92,7 +92,8 @@ function add_export(e) {
         var li = document.createElement("li");
         li.setAttribute("id", liname);
         var title = document.getElementById(e.id + "-title").innerHTML;
-        li.appendChild(document.createTextNode(title + "  "));
+        var version = document.getElementById(e.id + "-version").innerHTML;
+        li.appendChild(document.createTextNode(title + " " + version + "  "));
         var button = document.createElement("button");
         button.setAttribute("onclick", "remove_export(this.parentElement)");
         button.appendChild(document.createTextNode("X"));

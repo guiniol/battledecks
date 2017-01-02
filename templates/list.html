@@ -19,7 +19,7 @@
                 <div class="deckheader">
                     <img class="deckimage" src="data:image/png;base64,{{ thumb }}"/>
                     <span class="deckname titletext" id="{{ deckid }}-title">{{ name }}</span>
-                    <span class="deckversion titletext">(v{{ version }})</span>
+                    <span class="deckversion titletext" id="{{ deckid }}-version">(v{{ version }})</span>
                     <span class="deckcolour titletext">{{ colours|safe }}</span>
                     <div class="titletext titlediv" id="{{ deckid }}">
                         <div class="titlelink">{% if active %}<a href="{{ url }}">Buy on CardKingdom</a>{% else %}Not available on CardKingdom{% endif %}</div>
