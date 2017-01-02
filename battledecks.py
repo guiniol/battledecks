@@ -178,7 +178,7 @@ def show_decks():
             if types in cards:
                 cards_txt += '<li class="cardtypelist"><span class="cardtype">' + types + '</span>\n'
                 cards_txt += '<table class="cardlist">\n'
-                for card in cards[types]:
+                for card in sorted(cards[types], key=lambda x: x['name']):
                     cards_txt += '<tr class="carddesc">'
                     cards_txt += '<td class="cardquantity">' + card['quantity'] + '</td>'
                     cards_txt += '<td class="cardname"' +\
@@ -264,11 +264,17 @@ def deck_txt(deckid, basic=True):
     decktxt += deck.url + '\r\n'
     decktxt += deck.description + '\r\n'
 
+    cards = {}
     for card in DeckCards.query.filter_by(deck=deckid).all():
         ucard = UniqueCards.query.filter_by(id=card.card).first()
         if (not basic) and ucard.basic:
             continue
-        decktxt += str(card.quantity) + ' ' + ucard.name + '\r\n'
+        cards.setdefault(ucard.type, []).append({'name': ucard.name,
+                                                 'quantity': card.quantity})
+    for types in types_order:
+        if types in cards:
+            for card in sorted(cards[types], key=lambda x: x['name']):
+                decktxt += str(card['quantity']) + ' ' + card['name'] + '\r\n'
 
     return decktxt
 
