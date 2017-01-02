@@ -108,10 +108,29 @@ function remove_export(e) {
 
 function export_deck(e) {
     var deckid = e.id;
-    window.open('/export/' + deckid);
+    window.open("/export/" + deckid);
 }
 
-function export_list(combine) {
+function export_list(merge) {
+    var basic = document.getElementById("exportCB").checked;
+    var ul_childs = document.getElementById("exportlist").children;
+    var options = "";
+    for(var idx = 0; idx < ul_childs.length; ++idx) {
+        options += "id=";
+        options += ul_childs[idx].id.slice(0, -3);
+        options += "&";
+    }
+    if (options == "") {
+        return
+    }
+    if (basic) {
+        options += "nobasic=1&";
+    }
+    if (merge) {
+        options += "merge=1&"
+    }
+    options = options.slice(0, -1);
+    window.open("/exports/?" + options);
 }
 
 function createCookie(name, value, days) {
