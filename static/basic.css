@@ -105,26 +105,32 @@ ul {
 }
 
 .manafilter {
-    height: 15pt;
     opacity: 0.5;
+    display: inline-block;
 }
 
-.manafilter.selectit{
+.manafilter img {
+    height: 18px;
+}
+
+.manafilter.selectit {
     opacity: 1;
 }
 
-.manafilter.avoidit{
-    opacity: 0.2;
+.manafilter.avoidit {
+    opacity: 1;
+}
+
+.manafilter.avoidit img {
+    opacity: 0.5;
 }
 
 .manafilter.avoidit::after {
-    border-top: 1px solid red;
-    width: 100%;
-    height: 50%;
+    content: "X";
+    color: #f00;
+    opacity: 1;
+    transform: translate(-14px,1px) scale(2,1.5);
     position: absolute;
-    bottom: 0;
-    left: 0;
-    content: '';
 }
 
 .hitme {

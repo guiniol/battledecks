@@ -34,7 +34,7 @@ function reset_filter(e) {
     var children = e.children;
     for (var idx = 0; idx < children.length; ++idx) {
         var name = children[idx].tagName;
-        if (name == "IMG") {
+        if (name == "DIV") {
             children[idx].classList.remove("selectit");
             children[idx].classList.remove("avoidit");
         } else if (name == "INPUT") {

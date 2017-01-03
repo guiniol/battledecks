@@ -42,13 +42,13 @@
             <div class="colourfilter">
                 Filter by colours:
                 <br/>
-                <img id="W" class="manafilter" src="{{ url_for('static', filename='img/W.svg') }}" onclick="toggle(this)"/>
-                <img id="U" class="manafilter" src="{{ url_for('static', filename='img/U.svg') }}" onclick="toggle(this)"/>
-                <img id="B" class="manafilter" src="{{ url_for('static', filename='img/B.svg') }}" onclick="toggle(this)"/>
-                <img id="R" class="manafilter" src="{{ url_for('static', filename='img/R.svg') }}" onclick="toggle(this)"/>
-                <img id="G" class="manafilter" src="{{ url_for('static', filename='img/G.svg') }}" onclick="toggle(this)"/>
-                <img id="C" class="manafilter" src="{{ url_for('static', filename='img/C.svg') }}" onclick="toggle(this)"/>
-                <img id="A" class="manafilter" src="{{ url_for('static', filename='img/A.svg') }}" onclick="toggle(this)"/>
+                <div id="W" class="manafilter" onclick="toggle(this)"><img src="{{ url_for('static', filename='img/W.svg') }}"/></div>
+                <div id="U" class="manafilter" onclick="toggle(this)"><img src="{{ url_for('static', filename='img/U.svg') }}"/></div>
+                <div id="B" class="manafilter" onclick="toggle(this)"><img src="{{ url_for('static', filename='img/B.svg') }}"/></div>
+                <div id="R" class="manafilter" onclick="toggle(this)"><img src="{{ url_for('static', filename='img/R.svg') }}"/></div>
+                <div id="G" class="manafilter" onclick="toggle(this)"><img src="{{ url_for('static', filename='img/G.svg') }}"/></div>
+                <div id="C" class="manafilter" onclick="toggle(this)"><img src="{{ url_for('static', filename='img/C.svg') }}"/></div>
+                <div id="A" class="manafilter" onclick="toggle(this)"><img src="{{ url_for('static', filename='img/A.svg') }}"/></div>
                 <br/>
                 <input id ="manaCB" type="checkbox" onclick="update_filter(this.parentElement)"/>combine colours
                 <br/>
