@@ -5,20 +5,24 @@ function show(e) {
             c[idx].style.display = "inline";
         }
     } else {
+        var div = document.createElement("div");
+        div.className = "popupimage";
         var image = e.attributes.oli.value.split(" ");
         for (var idx = 0; idx < image.length; ++idx) {
             var img = document.createElement("img");
             img.src = image[idx];
-            img.className = "popupimage";
-            e.appendChild(img);
+            div.appendChild(img);
         }
+        e.appendChild(div)
     }
 }
 
 function hide(e) {
     var c = e.children;
     if (c.length > 0) {
-        c[0].style.display = "none";
+        for (var idx = 0; idx < c.length; ++idx) {
+            c[idx].style.display = "none";
+        }
     }
 }
 
