@@ -283,6 +283,8 @@ def update_db():
     page_url = base_url
     active_decks = []
     buf = ''
+    buf += print_log('Checking decks')
+    ok_decks = []
     while True:
         page = requests.get(page_url)
         tree = html.fromstring(page.content)
@@ -290,7 +292,6 @@ def update_db():
         for deck in decks:
             a = deck.xpath(cardkingdom_link)[0]
             title = a.xpath('text()')[0].split(':', 1)[1].strip()
-            buf += print_log('Checking deck %s' % title)
             thumb = deck.xpath(cardkingdom_thumb)[0].xpath('a/img')[0].get('src')
             thumb = requests.get(thumb)
             thumb = base64.b64encode(thumb.content)
@@ -309,7 +310,7 @@ def update_db():
                 else:
                     description += d
             if check != n_cards:
-                buf += print_log(' -> Deck is incomplete, skipping')
+                buf += print_log(' -> Deck %s is incomplete (%d), skipping' % (title, check))
                 continue
 
             old_deck = BattleDecks.query.filter_by(name=title)\
@@ -321,11 +322,11 @@ def update_db():
                     if (card.card not in uniquecards) or\
                        (uniquecards[card.card] != card.quantity):
                         is_new = True
-                        buf += print_log(' -> Deck has a new version: v%s' % (old_deck.version + 1))
+                        buf += print_log(' -> Deck %s has a new version: v%s' % (title, old_deck.version + 1))
                         break
             else:
                 is_new = True
-                buf += print_log(' -> Deck is new')
+                buf += print_log(' -> Deck %s is new' % title)
 
             if is_new:
                 dbDeck = BattleDecks(title, url, description, thumb)
@@ -339,7 +340,7 @@ def update_db():
                     db.session.add(dbDeckCard)
                 active_decks.append(dbDeck.id)
             else:
-                buf += print_log(' -> Deck is up to date')
+                ok_decks.append(title)
                 active_decks.append(old_deck.id)
 
             db.session.commit()
@@ -348,12 +349,18 @@ def update_db():
         if next_li is None:
             break
         page_url = next_li.xpath('a')[0].get('href')
+
     for deck in BattleDecks.query.all():
         if deck.id in active_decks:
             deck.active = True
         else:
             deck.active = False
     db.session.commit()
+
+    buf += print_log('Decks up to date:')
+    for deck in ok_decks:
+        buf += print_log(' -> %s' % deck)
+
     return buf
 
 def add_from_file(filename, date):
