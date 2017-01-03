@@ -38,7 +38,11 @@ function reset_filter(e) {
             children[idx].classList.remove("selectit");
             children[idx].classList.remove("avoidit");
         } else if (name == "INPUT") {
-            children[idx].checked = false;
+            if (children[idx].type == "text") {
+                children[idx].value = "";
+            } else {
+                children[idx].checked = false;
+            }
         }
     }
 
@@ -55,6 +59,7 @@ function update_filter(e) {
     var hideit = [];
     var combine = document.getElementById("manaCB").checked;
     var version = document.getElementById("versionCB").checked;
+    var textfilter = document.getElementById("textfilter").value.toLowerCase();
     for (var c = 0; c < childs.length; ++c) {
         if (childs[c].classList.contains("selectit")) {
             showit.push(childs[c].id)
@@ -79,6 +84,10 @@ function update_filter(e) {
             elems[idx].classList.add("hideme");
             continue;
         }
+        if (showit.length == 0 && textfilter == "") {
+            elems[idx].classList.remove("hideme");
+            continue;
+        }
         if (combine) {
             found = true;
             for (var i = 0; i < showit.length; ++i) {
@@ -95,15 +104,34 @@ function update_filter(e) {
                 }
             }
         }
-        if (found) {
+        if (showit.length > 0 && !found) {
+            elems[idx].classList.add("hideme");
+            continue;
+        }
+        var title = elems[idx].children[0].children[1].textContent.toLowerCase();
+        if (title.search(textfilter) > -1) {
             elems[idx].classList.remove("hideme");
             continue;
         }
-        if (showit.length == 0) {
-            elems[idx].classList.remove("hideme");
-        } else {
-            elems[idx].classList.add("hideme");
+        var types = elems[idx].children[4].children[0].children;
+        var found = false
+        for (var tdx = 0; tdx < types.length; ++tdx) {
+            var cards = types[tdx].children[1].children[0].children;
+            for (var cdx = 0; cdx < cards.length; ++cdx) {
+                if (cards[cdx].children[1].textContent.toLowerCase().search(textfilter) > -1) {
+                    found = true
+                    elems[idx].classList.remove("hideme");
+                    continue;
+                }
+            }
+            if (found) {
+                continue;
+            }
         }
+        if (found) {
+            continue;
+        }
+        elems[idx].classList.add("hideme");
     }
 }
 
@@ -182,3 +210,12 @@ function eraseCookie(name) {
     createCookie(name,"",-1);
 }
 
+
+window.onload = function () {
+    document.getElementById("textfilter")
+        .addEventListener("keyup", function(event) {
+            if (event.keyCode == 13) {
+                update_filter(document.getElementById("textfilter").parentElement);
+            }
+        })
+};
