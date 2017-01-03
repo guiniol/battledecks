@@ -1,13 +1,17 @@
 function show(e) {
     var c = e.children;
     if (c.length > 0) {
-        c[0].style.display = "inline";
+        for (var idx = 0; idx < c.length; ++idx) {
+            c[idx].style.display = "inline";
+        }
     } else {
-        var image = e.attributes.oli.value;
-        var img = document.createElement("img");
-        img.src = image;
-        img.className = "popupimage";
-        e.appendChild(img);
+        var image = e.attributes.oli.value.split(" ");
+        for (var idx = 0; idx < image.length; ++idx) {
+            var img = document.createElement("img");
+            img.src = image[idx];
+            img.className = "popupimage";
+            e.appendChild(img);
+        }
     }
 }
 

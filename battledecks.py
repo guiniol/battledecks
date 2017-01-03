@@ -65,6 +65,7 @@ gatherer_cardname = '//span[contains(@id, "subtitleDisplay")]/text()'
 gatherer_cardcolour = '//div[contains(@id, "manaRow")]/div[@class="value"]/img'
 gatherer_cardtype = '//div[contains(@id, "typeRow")]/div[@class="value"]/text()'
 gatherer_cardimg = '//img[contains(@id, "cardImage")]'
+gatherer_cardaltname = '//div[contains(@id, "nameRow")]/div[@class="value"]/text()'
 gatherer_language = '//a[contains(@id,"LanguagesLink")]'
 gatherer_english = '//table[@class="cardList"]/tr/td/a[contains(@id, "cardTitle")]'
 
@@ -486,6 +487,12 @@ def make_card(name):
         info = requests.get(href)
         infotree = html.fromstring(info.content)
         cardname = infotree.xpath(gatherer_cardname)[0].strip()
+        cardimage = [img.get('src') for img in infotree.xpath(gatherer_cardimg)]
+        if len(cardimage) > 1:
+            if not cardimage[0] == cardimage[1]:
+                cardaltname = infotree.xpath(gatherer_cardaltname)[0].strip()
+                if not cardname == cardaltname:
+                    return make_card(cardaltname)
         dbCard = UniqueCards.query.filter_by(name=cardname).first()
         if dbCard is None:
             cardcolour = set()
@@ -494,15 +501,14 @@ def make_card(name):
             cardcolour = filter_colour(cardcolour)
             cardtype = infotree.xpath(gatherer_cardtype)[0].split('—')[0].strip()
             cardtype, basic = filter_type(cardtype)
-            cardimage = infotree.xpath(gatherer_cardimg)[0].get('src')
-            cardimage = gatherer_base + cardimage[5:]
+            cardimage = " ".join([gatherer_base + img[5:] for img in cardimage])
             dbCard = UniqueCards(cardname, cardcolour, cardtype, basic, cardimage)
             db.session.add(dbCard)
             db.session.commit()
             trCard = TranslationCards(name, dbCard.id)
             db.session.add(trCard)
             db.session.commit()
-            print '  New card: %s' % cardname
+            print_log('  New card: %s' % cardname)
         trCard = TranslationCards.query.filter_by(cardid=dbCard.id).first()
         if trCard is None:
             trCard = TranslationCards(name, dbCard.id)
