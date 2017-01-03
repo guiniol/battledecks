@@ -97,7 +97,6 @@ ul {
     right: 0;
     width: 18%;
     height: 100%;
-    overflow-y: auto;
     overflow-x: auto;
     box-sizing: border-box;
     border-left: 1px solid #333;
@@ -132,4 +131,17 @@ ul {
     margin: 0.5em 0.25em;
     display: inline-block;
     text-align: center;
+}
+
+.colourfilter {
+    height: 12em;
+}
+
+.exportbuttons {
+    height: 5em;
+}
+
+.exportlist {
+    overflow-y: auto;
+    height: calc(100% - 18em);
 }

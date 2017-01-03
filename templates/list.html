@@ -56,16 +56,17 @@
                 <br/>
                 Find in cards and deck names:
                 <br/>
+                <input type="text" id="textfilter">
+                <br/>
                 <button class="hitme" type="button" onclick="reset_filter(this.parentElement)">clear</button>
             </div>
-            <br/>
-            <div id="exportbuttons">
+            <div class="exportbuttons" id="exportbuttons">
                 <button class="hitme" type="button" onclick="export_list(false)">Export</button>
                 <button class="hitme" type="button" onclick="export_list(true)">Merge &amp; export</button>
                 <br/>
                 <input id ="exportCB" type="checkbox" onclick="update_filter(this.parentElement)"/>remove basic lands
             </div>
-            <div>
+            <div class="exportlist">
                 <ul id="exportlist">
                 </ul>
             </div>
