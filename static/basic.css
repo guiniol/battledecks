@@ -90,6 +90,7 @@ ul {
     bottom: -150px;
     z-index: 999;
     width: 500px;
+    display: inline;
 }
 
 .floatmenu {
