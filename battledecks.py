@@ -493,6 +493,8 @@ def make_card(name):
                 cardaltname = infotree.xpath(gatherer_cardaltname)[0].strip()
                 if not cardname == cardaltname:
                     return make_card(cardaltname)
+            else:
+                cardimage = cardimage[0:1]
         dbCard = UniqueCards.query.filter_by(name=cardname).first()
         if dbCard is None:
             cardcolour = set()
