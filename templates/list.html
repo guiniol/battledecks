@@ -39,7 +39,6 @@
             {% endfor %}
         </div>
         <div class="floatmenu">
-            Mock filters: reset, search, only show latest version
             <div class="colourfilter">
                 Filter by colours:
                 <br/>
@@ -50,7 +49,14 @@
                 <img id="G" class="manafilter" src="{{ url_for('static', filename='img/G.svg') }}" onclick="toggle(this)"/>
                 <img id="C" class="manafilter" src="{{ url_for('static', filename='img/C.svg') }}" onclick="toggle(this)"/>
                 <img id="A" class="manafilter" src="{{ url_for('static', filename='img/A.svg') }}" onclick="toggle(this)"/>
-                <input id ="manaCB" type="checkbox" onclick="update_filter(this.parentElement)"/>combine
+                <br/>
+                <input id ="manaCB" type="checkbox" onclick="update_filter(this.parentElement)"/>combine colours
+                <br/>
+                <input id ="versionCB" type="checkbox" onclick="update_filter(this.parentElement)"/>show only latest version
+                <br/>
+                Find in cards and deck names:
+                <br/>
+                <button class="hitme" type="button" onclick="reset_filter(this.parentElement)">clear</button>
             </div>
             <br/>
             <div id="exportbuttons">

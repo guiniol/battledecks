@@ -30,12 +30,31 @@ function toggle(e) {
     update_filter(e.parentElement);
 }
 
+function reset_filter(e) {
+    var children = e.children;
+    for (var idx = 0; idx < children.length; ++idx) {
+        var name = children[idx].tagName;
+        if (name == "IMG") {
+            children[idx].classList.remove("selectit");
+            children[idx].classList.remove("avoidit");
+        } else if (name == "INPUT") {
+            children[idx].checked = false;
+        }
+    }
+
+    var elems = document.getElementsByClassName("deck");
+    for (var idx = 0; idx < elems.length; ++idx) {
+            elems[idx].classList.remove("hideme");
+    }
+}
+
 function update_filter(e) {
     var elems = document.getElementsByClassName("deck");
     var childs = e.children;
     var showit = [];
     var hideit = [];
     var combine = document.getElementById("manaCB").checked;
+    var version = document.getElementById("versionCB").checked;
     for (var c = 0; c < childs.length; ++c) {
         if (childs[c].classList.contains("selectit")) {
             showit.push(childs[c].id)
@@ -44,6 +63,10 @@ function update_filter(e) {
         }
     }
     for (var idx = 0; idx < elems.length; ++idx) {
+        if (version && ("old" in elems[idx].attributes)) {
+            elems[idx].classList.add("hideme");
+            continue;
+        }
         var dc = elems[idx].attributes.dc.value;
         var found = false;
         for (var i = 0; i < hideit.length; ++i) {
