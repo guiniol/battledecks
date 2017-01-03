@@ -119,6 +119,7 @@ function add_export(e) {
         li.appendChild(document.createTextNode(title + " " + version + "  "));
         var button = document.createElement("button");
         button.setAttribute("onclick", "remove_export(this.parentElement)");
+        button.setAttribute("class", "floatbutton");
         button.appendChild(document.createTextNode("X"));
         li.appendChild(button);
         ul.appendChild(li);

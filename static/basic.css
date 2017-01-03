@@ -133,6 +133,11 @@ ul {
     text-align: center;
 }
 
+.floatbutton {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
 .colourfilter {
     height: 12em;
 }
