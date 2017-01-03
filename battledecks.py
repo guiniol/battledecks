@@ -579,8 +579,8 @@ def check_decks():
             print 'problem with deck %s: %d cards' % (deck.name, n)
 
 def check_dualcards():
-    for card in UniqueCards.query.all():
-        print "card %s" % card.name
+    for card in UniqueCards.query.order_by(UniqueCards.id).all():
+        print 'card %s' % card.name
         name = card.name
         search = requests.get(google_search + '+'.join(name.split()))
         tree = html.fromstring(search.content)
@@ -615,15 +615,15 @@ def check_dualcards():
         cardname = infotree.xpath(gatherer_cardname)[0].strip()
         cardimage = [img.get('src') for img in infotree.xpath(gatherer_cardimg)]
         if len(cardimage) == 1:
-            print "  is single"
+            print '  is single'
             continue
         if cardimage[0] == cardimage[1]:
-            print "  is same face dual"
+            print '  is same face dual'
             continue
         cardaltname = infotree.xpath(gatherer_cardaltname)[0].strip()
         if cardname == cardaltname:
-            card.image = " ".join([gatherer_base + img[5:] for img in cardimage])
-            print "  is dual"
+            card.image = ' '.join([gatherer_base + img[5:] for img in cardimage])
+            print '  is dual'
             continue
         altcard = UniqueCards.query.filter_by(name=cardaltname).first()
         if altcard:
@@ -634,11 +634,11 @@ def check_dualcards():
             for dc in dCards:
                 dc.card = altcard.id
             db.session.delete(card)
-            print "  is duplicate dual"
+            print '  is duplicate dual, original name is %s' % altcard.name
             continue
         card.name = cardaltname
-        card.image = " ".join([gatherer_base + img[5:] for img in cardimage])
-        print "  is dual, adjusting"
+        card.image = ' '.join([gatherer_base + img[5:] for img in cardimage])
+        print '  is dual, adjusting'
         db.session.commit()
 
 def reorder_versions():
