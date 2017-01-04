@@ -191,10 +191,9 @@ def show_decks():
                 cards_txt += '</table></li>\n'
         colours = ''
         for c in deck.colour:
-            if c != 'A':
-                colours += '<img src="' +\
-                           url_for('static', filename='img/' + c + '.svg') +\
-                           '" class="manasymbol"/>'
+            colours += '<img src="' +\
+                       url_for('static', filename='img/' + c + '.svg') +\
+                       '" class="manasymbol"/>'
         old = False
         if deck.name in shown:
             old = True
