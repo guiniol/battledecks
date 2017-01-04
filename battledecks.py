@@ -562,7 +562,12 @@ def combine_colours(cards):
     colours = set()
     for card in cards:
         dbCard = UniqueCards.query.filter_by(id=card).first()
+        if dbCard.colour == 'A':
+            colours.add('A')
+            continue
         for c in dbCard.colour:
+            if c == 'A':
+                continue
             colours.add(c)
     text = ''
     for c in colours_abbrv:
