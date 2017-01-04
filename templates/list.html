@@ -13,6 +13,8 @@
             Their battle decks are what Wizards should be selling as intro packs.
             This page is meant to help search through the deck as well as archive the old ones they are not selling anymore.
             <br/>
+            This website's source is on <a href="https://github.com/guiniol/battledecks">GitHub</a>. PRs are welcome.
+            <br/>
             <br/>
             {% for name, deckid, old, thumb, url, timestamp, description, colour, colours, version, active, cards in decks %}
             <div class="deck" dc="{{ colour }}" {% if old %} old {% endif %}>
