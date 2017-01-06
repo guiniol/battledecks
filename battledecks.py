@@ -496,9 +496,7 @@ def make_card(name):
         cardimage = [img.get('src') for img in infotree.xpath(gatherer_cardimg)]
         if len(cardimage) > 1:
             if not cardimage[0] == cardimage[1]:
-                cardaltname = infotree.xpath(gatherer_cardaltname)[0].strip()
-                if not cardname == cardaltname:
-                    return make_card(cardaltname)
+                cardname = ' / '.join([n.strip() for n in infotree.xpath(gatherer_cardaltname)])
             else:
                 cardimage = cardimage[0:1]
         dbCard = UniqueCards.query.filter_by(name=cardname).first()
@@ -617,7 +615,6 @@ def check_dualcards():
             href = old_href
         info = requests.get(href)
         infotree = html.fromstring(info.content)
-        cardname = infotree.xpath(gatherer_cardname)[0].strip()
         cardimage = [img.get('src') for img in infotree.xpath(gatherer_cardimg)]
         if len(cardimage) == 1:
             print ' ' * padding + 'is single'
@@ -625,8 +622,8 @@ def check_dualcards():
         if cardimage[0] == cardimage[1]:
             print ' ' * padding + 'is same face dual'
             continue
-        cardaltname = infotree.xpath(gatherer_cardaltname)[0].strip()
-        if cardname == cardaltname:
+        cardaltname = ' / '.join([n.strip() for n in infotree.xpath(gatherer_cardaltname)])
+        if name == cardaltname:
             card.image = ' '.join([gatherer_base + img[5:] for img in cardimage])
             print ' ' * padding + 'is dual'
             continue
@@ -643,7 +640,7 @@ def check_dualcards():
             continue
         card.name = cardaltname
         card.image = ' '.join([gatherer_base + img[5:] for img in cardimage])
-        print ' ' * padding + 'is dual, adjusting'
+        print ' ' * padding + 'is dual, adjusting to %s' % cardaltname
         db.session.commit()
 
 def reorder_versions():
