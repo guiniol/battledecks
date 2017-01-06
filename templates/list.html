@@ -17,7 +17,7 @@
             <br/>
             <br/>
             {% for name, deckid, old, thumb, url, timestamp, description, colour, colours, version, active, cards in decks %}
-            <div class="deck" dc="{{ colour }}" {% if old %} old {% endif %}>
+            <div class="deck{% if old %} hideme{% endif %}" dc="{{ colour }}" {% if old %} old {% endif %}>
                 <div class="deckheader">
                     <img class="deckimage" src="data:image/png;base64,{{ thumb }}"/>
                     <span class="deckname titletext" id="{{ deckid }}-title">{{ name }}</span>
@@ -54,7 +54,7 @@
                 <br/>
                 <input id ="manaCB" type="checkbox" onclick="update_filter(this.parentElement)"/>combine colours
                 <br/>
-                <input id ="versionCB" type="checkbox" onclick="update_filter(this.parentElement)"/>show only latest version
+                <input id ="versionCB" type="checkbox" onclick="update_filter(this.parentElement)" checked/>show only latest version
                 <br/>
                 Find in cards and deck names:
                 <br/>

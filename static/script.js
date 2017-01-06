@@ -49,14 +49,22 @@ function reset_filter(e) {
             if (children[idx].type == "text") {
                 children[idx].value = "";
             } else {
-                children[idx].checked = false;
+                if (children[idx].id == "versionCB") {
+                    children[idx].checked = true;
+                } else {
+                    children[idx].checked = false;
+                }
             }
         }
     }
 
     var elems = document.getElementsByClassName("deck");
     for (var idx = 0; idx < elems.length; ++idx) {
+        if ("old" in elems[idx].attributes) {
+            elems[idx].classList.add("hideme");
+        } else {
             elems[idx].classList.remove("hideme");
+        }
     }
 }
 
