@@ -1,4 +1,4 @@
 #!/bin/bash
 
-${OPENSHIFT_REPO_DIR}update_db.sh
+#${OPENSHIFT_REPO_DIR}update_db.sh
 
