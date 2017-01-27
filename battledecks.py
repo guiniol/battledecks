@@ -309,7 +309,9 @@ def update_db():
                 else:
                     description += d
             if check != n_cards:
-                buf += print_log(' -> Deck %s is incomplete (%d), skipping' % (title, check))
+                buf += print_log(' -> Deck %s is incomplete (%d), marking as active and skipping' % (title, check))
+                for old_deck in BattleDecks.query.filter_by(name=title).all():
+                    active_decks.append(old_deck.id)
                 continue
 
             old_deck = BattleDecks.query.filter_by(name=title)\
